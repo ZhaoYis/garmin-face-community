@@ -1,0 +1,165 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "submit": "Submit"
+  },
+  "nav": {
+    "home": "Home",
+    "activities": "Activities",
+    "createPoster": "Create Poster",
+    "myPosters": "My Posters",
+    "profile": "Profile",
+    "admin": "Admin"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "signInTitle": "Sign in to Garmin Watch Face Community",
+    "signInDescription": "Sign in with your account, bind your Garmin device and generate beautiful posters",
+    "signInWithGoogle": "Sign in with Google",
+    "signInWithGitHub": "Sign in with GitHub"
+  },
+  "home": {
+    "title": "Garmin Watch Face Community",
+    "subtitle": "Sports Achievement Poster Generator",
+    "description": "Bind your Garmin account, sync sports data, generate beautiful posters, and make every race memorable",
+    "getStarted": "Get Started",
+    "features": {
+      "title": "Core Features",
+      "syncData": "Data Sync",
+      "syncDataDesc": "Bind your Garmin account to automatically sync your sports data",
+      "generatePoster": "Poster Generation",
+      "generatePosterDesc": "Choose beautiful templates and generate sports achievement posters with one click",
+      "sharePoster": "Share Achievements",
+      "sharePosterDesc": "Share to social media and record every breakthrough"
+    }
+  },
+  "activities": {
+    "title": "Activities",
+    "syncData": "Sync Data",
+    "noActivities": "No activities yet",
+    "noActivitiesDesc": "Bind your Garmin account to sync your sports data",
+    "bindGarmin": "Bind Garmin",
+    "activityTypes": {
+      "running": "Running",
+      "cycling": "Cycling",
+      "swimming": "Swimming",
+      "trail": "Trail"
+    },
+    "distance": "Distance",
+    "duration": "Duration",
+    "pace": "Pace",
+    "heartRate": "Heart Rate",
+    "elevation": "Elevation"
+  },
+  "poster": {
+    "createTitle": "Create Poster",
+    "selectActivity": "Select Activity",
+    "selectTemplate": "Select Template",
+    "generate": "Generate Poster",
+    "downloading": "Downloading...",
+    "download": "Download Poster",
+    "share": "Share",
+    "myPosters": "My Posters",
+    "noPosters": "No posters yet",
+    "noPostersDesc": "Select an activity and template to generate your first poster"
+  },
+  "profile": {
+    "title": "Profile",
+    "bindGarmin": "Bind Garmin",
+    "unbindGarmin": "Unbind Garmin",
+    "garminConnected": "Garmin Connected",
+    "garminNotConnected": "Garmin Not Connected"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "templates": "Templates",
+    "watchfaces": "Watch Faces",
+    "totalUsers": "Total Users",
+    "totalWatchfaces": "Total Watch Faces",
+    "pending": "Pending",
+    "totalDownloads": "Total Downloads",
+    "recentActivity": "Recent Activity",
+    "noData": "No data",
+    "quickActions": "Quick Actions",
+    "manageUsers": "Manage Users",
+    "reviewWatchfaces": "Review Watch Faces"
+  },
+  "users": {
+    "title": "User List",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "status": "Status",
+    "createdAt": "Created At",
+    "actions": "Actions",
+    "noActions": "No actions",
+    "roles": {
+      "guest": "Guest",
+      "user": "User",
+      "creator": "Creator",
+      "admin": "Admin"
+    },
+    "statuses": {
+      "active": "Active",
+      "disabled": "Disabled"
+    }
+  },
+  "watchfaces": {
+    "title": "Upload Watch Face",
+    "myWorks": "My Works",
+    "uploadNew": "Upload New",
+    "name": "Name",
+    "category": "Category",
+    "description": "Description",
+    "file": "Watch Face File",
+    "uploadHint": "Click to upload or drag and drop",
+    "uploadFormat": "Supports .garmin, .prg formats, max 10MB",
+    "submit": "Submit Upload",
+    "uploading": "Uploading...",
+    "uploadSuccess": "Upload successful, pending review",
+    "categories": {
+      "analog": "Analog",
+      "digital": "Digital",
+      "hybrid": "Hybrid",
+      "fitness": "Fitness"
+    },
+    "statuses": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "downloads": "Downloads",
+    "likes": "Likes"
+  },
+  "forbidden": {
+    "title": "403 Forbidden",
+    "description": "You don't have permission to access this page. If you believe this is an error, please contact the administrator.",
+    "backHome": "Back to Home",
+    "changeAccount": "Change Account"
+  },
+  "language": {
+    "switch": "Switch Language",
+    "zh-CN": "中文",
+    "en": "English"
+  },
+  "theme": {
+    "switch": "Switch Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "user": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "signOut": "Sign Out"
+  }
+}

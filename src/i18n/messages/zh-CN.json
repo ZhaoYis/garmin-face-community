@@ -1,0 +1,165 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "error": "发生错误",
+    "success": "操作成功",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "submit": "提交"
+  },
+  "nav": {
+    "home": "首页",
+    "activities": "运动记录",
+    "createPoster": "创建海报",
+    "myPosters": "我的海报",
+    "profile": "个人中心",
+    "admin": "管理后台"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signOut": "退出登录",
+    "signInTitle": "登录到 Garmin 表盘社区",
+    "signInDescription": "使用您的账号登录，绑定佳明设备后即可生成精美海报",
+    "signInWithGoogle": "使用 Google 登录",
+    "signInWithGitHub": "使用 GitHub 登录"
+  },
+  "home": {
+    "title": "Garmin 表盘社区",
+    "subtitle": "运动成就海报生成器",
+    "description": "绑定佳明账号，同步运动数据，生成精美海报，让每一次比赛都值得被铭记",
+    "getStarted": "立即开始",
+    "features": {
+      "title": "核心功能",
+      "syncData": "数据同步",
+      "syncDataDesc": "绑定 Garmin 账号，自动同步您的运动数据",
+      "generatePoster": "海报生成",
+      "generatePosterDesc": "选择精美模板，一键生成运动成就海报",
+      "sharePoster": "分享成就",
+      "sharePosterDesc": "分享到社交媒体，记录每一次突破"
+    }
+  },
+  "activities": {
+    "title": "运动记录",
+    "syncData": "同步数据",
+    "noActivities": "暂无运动记录",
+    "noActivitiesDesc": "绑定 Garmin 账号后，同步您的运动数据",
+    "bindGarmin": "绑定佳明",
+    "activityTypes": {
+      "running": "跑步",
+      "cycling": "骑行",
+      "swimming": "游泳",
+      "trail": "越野"
+    },
+    "distance": "距离",
+    "duration": "时长",
+    "pace": "配速",
+    "heartRate": "心率",
+    "elevation": "海拔"
+  },
+  "poster": {
+    "createTitle": "创建海报",
+    "selectActivity": "选择运动记录",
+    "selectTemplate": "选择模板",
+    "generate": "生成海报",
+    "downloading": "下载中...",
+    "download": "下载海报",
+    "share": "分享",
+    "myPosters": "我的海报",
+    "noPosters": "暂无海报",
+    "noPostersDesc": "选择运动记录和模板，生成您的第一张海报"
+  },
+  "profile": {
+    "title": "个人中心",
+    "bindGarmin": "绑定佳明",
+    "unbindGarmin": "解绑佳明",
+    "garminConnected": "已绑定 Garmin",
+    "garminNotConnected": "未绑定 Garmin"
+  },
+  "admin": {
+    "dashboard": "仪表盘",
+    "users": "用户管理",
+    "templates": "模板管理",
+    "watchfaces": "表盘审核",
+    "totalUsers": "总用户",
+    "totalWatchfaces": "总表盘",
+    "pending": "待审核",
+    "totalDownloads": "总下载",
+    "recentActivity": "最近活动",
+    "noData": "暂无数据",
+    "quickActions": "快速操作",
+    "manageUsers": "管理用户",
+    "reviewWatchfaces": "审核表盘"
+  },
+  "users": {
+    "title": "用户列表",
+    "name": "用户名",
+    "email": "邮箱",
+    "role": "角色",
+    "status": "状态",
+    "createdAt": "注册时间",
+    "actions": "操作",
+    "noActions": "暂无操作",
+    "roles": {
+      "guest": "游客",
+      "user": "普通用户",
+      "creator": "创作者",
+      "admin": "管理员"
+    },
+    "statuses": {
+      "active": "正常",
+      "disabled": "禁用"
+    }
+  },
+  "watchfaces": {
+    "title": "上传表盘",
+    "myWorks": "我的作品",
+    "uploadNew": "上传新表盘",
+    "name": "表盘名称",
+    "category": "分类",
+    "description": "描述",
+    "file": "表盘文件",
+    "uploadHint": "点击上传或拖拽文件到此处",
+    "uploadFormat": "支持 .garmin, .prg 格式，最大 10MB",
+    "submit": "提交上传",
+    "uploading": "上传中...",
+    "uploadSuccess": "上传成功，等待审核",
+    "categories": {
+      "analog": "模拟表盘",
+      "digital": "数字表盘",
+      "hybrid": "混合表盘",
+      "fitness": "运动表盘"
+    },
+    "statuses": {
+      "pending": "审核中",
+      "approved": "已通过",
+      "rejected": "已拒绝"
+    },
+    "downloads": "下载",
+    "likes": "点赞"
+  },
+  "forbidden": {
+    "title": "403 禁止访问",
+    "description": "您没有权限访问此页面。如果您认为这是一个错误，请联系管理员。",
+    "backHome": "返回首页",
+    "changeAccount": "更换账号登录"
+  },
+  "language": {
+    "switch": "切换语言",
+    "zh-CN": "中文",
+    "en": "English"
+  },
+  "theme": {
+    "switch": "切换主题",
+    "light": "浅色",
+    "dark": "深色",
+    "system": "跟随系统"
+  },
+  "user": {
+    "profile": "个人中心",
+    "settings": "设置",
+    "signOut": "退出登录"
+  }
+}
