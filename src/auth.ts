@@ -12,6 +12,10 @@ declare module "next-auth" {
       role?: string;
     } & DefaultSession["user"];
   }
+
+  interface User {
+    role?: string;
+  }
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({

@@ -7,3 +7,6 @@ const connectionString = process.env.POSTGRES_URL!;
 const client = postgres(connectionString);
 
 export const db = drizzle(client, { schema });
+
+// Re-export schema
+export * from "./schema";

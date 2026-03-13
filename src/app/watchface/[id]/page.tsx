@@ -23,11 +23,7 @@ const mockWatchFace = {
   rating: 4.5,
 };
 
-export default function WatchFaceDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function WatchFaceDetailPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       {/* Header */}
