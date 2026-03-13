@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { generateGarminAuthUrl, generateState } from "@/lib/garmin/oauth";
 import { isGarminConfigured } from "@/lib/garmin/oauth";
+import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 
 // GET /api/auth/garmin - 获取 Garmin 授权 URL
 export async function GET() {
@@ -9,6 +10,10 @@ export async function GET() {
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, PERMISSIONS.BIND_GARMIN)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     if (!isGarminConfigured()) {

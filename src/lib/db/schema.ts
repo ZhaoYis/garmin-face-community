@@ -1,5 +1,8 @@
 import { pgTable, text, timestamp, uuid, boolean, integer, json, primaryKey } from "drizzle-orm/pg-core";
 
+// 用户角色类型定义
+export type UserRole = "guest" | "user" | "creator" | "admin";
+
 // NextAuth.js required tables
 export const accounts = pgTable(
   "account",
@@ -51,7 +54,7 @@ export const users = pgTable("user", {
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
   bio: text("bio"),
-  role: text("role").default("user").notNull(), // 'admin' | 'user'
+  role: text("role").$type<UserRole>().default("user").notNull(), // 'guest' | 'user' | 'creator' | 'admin'
   status: text("status").default("active").notNull(), // 'active' | 'disabled'
   // Garmin 绑定信息
   garminUserId: text("garmin_user_id"),

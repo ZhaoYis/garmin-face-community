@@ -1,29 +1,42 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import { hasPermission, PERMISSIONS } from "@/lib/permissions";
+import type { UserRole } from "@/lib/db/schema";
+
+// 路由权限配置
+const ROUTE_PERMISSIONS: Record<string, { permission?: keyof typeof PERMISSIONS; requireLogin?: boolean }> = {
+  // 需要登录的路由
+  "/profile": { requireLogin: true },
+  "/activities": { requireLogin: true },
+  "/my-posters": { requireLogin: true },
+  "/poster/create": { requireLogin: true },
+
+  // 创作者路由
+  "/watchfaces": { permission: "UPLOAD_WATCHFACE" },
+
+  // 管理员路由
+  "/admin": { permission: "ACCESS_ADMIN" },
+};
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
+  const userRole: UserRole = req.auth?.user?.role || "guest";
   const { nextUrl } = req;
 
-  // 保护 /profile 路由
-  if (nextUrl.pathname.startsWith("/profile") && !isLoggedIn) {
-    return NextResponse.redirect(new URL("/auth/signin", nextUrl));
-  }
+  // 检查每个路由配置
+  for (const [route, config] of Object.entries(ROUTE_PERMISSIONS)) {
+    if (nextUrl.pathname.startsWith(route)) {
+      // 需要登录
+      if (config.requireLogin && !isLoggedIn) {
+        return NextResponse.redirect(new URL("/auth/signin", nextUrl));
+      }
 
-  // 保护 /upload 路由
-  if (nextUrl.pathname.startsWith("/upload") && !isLoggedIn) {
-    return NextResponse.redirect(new URL("/auth/signin", nextUrl));
-  }
+      // 需要特定权限
+      if (config.permission && !hasPermission(userRole, PERMISSIONS[config.permission])) {
+        return NextResponse.redirect(new URL("/forbidden", nextUrl));
+      }
 
-  // 保护 /admin 路由
-  if (nextUrl.pathname.startsWith("/admin")) {
-    if (!isLoggedIn) {
-      return NextResponse.redirect(new URL("/auth/signin", nextUrl));
-    }
-
-    // 检查是否是管理员
-    if (req.auth?.user?.role !== "admin") {
-      return NextResponse.redirect(new URL("/", nextUrl));
+      break;
     }
   }
 
@@ -31,5 +44,12 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/profile/:path*", "/upload/:path*", "/admin/:path*"],
+  matcher: [
+    "/profile/:path*",
+    "/activities/:path*",
+    "/my-posters/:path*",
+    "/poster/create/:path*",
+    "/watchfaces/:path*",
+    "/admin/:path*",
+  ],
 };

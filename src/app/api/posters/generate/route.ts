@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { posters, activities, posterTemplates } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 
 // 请求体验证
 const generatePosterSchema = z.object({
@@ -25,6 +26,10 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!hasPermission(session.user.role, PERMISSIONS.GENERATE_POSTER)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const body = await request.json();
