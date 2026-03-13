@@ -2,7 +2,7 @@
 
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { User, LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { UserAvatar } from "@/components/user-avatar";
 
 interface UserDropdownProps {
   user: {
@@ -29,18 +30,13 @@ export function UserDropdown({ user }: UserDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          {user.image ? (
-            <img
-              src={user.image}
-              alt={user.name || "用户头像"}
-              className="h-10 w-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="h-5 w-5 text-primary" />
-            </div>
-          )}
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
+          <UserAvatar
+            image={user.image}
+            name={user.name}
+            email={user.email}
+            className="h-10 w-10"
+          />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
