@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FAFBFC;
+  --foreground: #0F172A;
+  --primary: #FF6B00;
+  --primary-light: #FF8C00;
+  --secondary: #F1F5F9;
+  --border: #E2E8F0;
+
+  /* 成就色 */
+  --achievement-gold: #FFD700;
+
+  /* 运动类型色 */
+  --running: #FF6B00;
+  --cycling: #00D9FF;
+  --swimming: #00C853;
+  --trail: #8B4513;
+
+  /* 渐变 */
+  --gradient-start: #FF6B00;
+  --gradient-mid: #FF8C00;
+  --gradient-end: #FFD700;
+
+  /* 圆角 */
+  --radius: 12px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0F172A;
+    --foreground: #F8FAFC;
+    --primary: #FF8C00;
+    --border: #1E293B;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
