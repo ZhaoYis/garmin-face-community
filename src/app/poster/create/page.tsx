@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -21,16 +22,10 @@ interface Activity {
   durationSeconds: number;
 }
 
-const TEMPLATE_DESCRIPTIONS: Record<string, string> = {
-  achievement: "深色背景 + 金色装饰，适合马拉松完赛纪念",
-  minimal: "白底 + 黑字，简约风格，适合日常训练",
-  art: "渐变背景，艺术风格，适合社交媒体分享",
-  trail: "大地色系，突出爬升数据，适合越野赛",
-};
-
 function PosterCreateContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations();
   const activityId = searchParams.get("activityId");
 
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -62,9 +57,18 @@ function PosterCreateContent() {
     fetchData();
   }, []);
 
+  const getTemplateDescription = (key: string) => {
+    const descriptionKey = `poster.templates.${key}` as const;
+    try {
+      return t(descriptionKey);
+    } catch {
+      return key;
+    }
+  };
+
   const handleCreate = async () => {
     if (!selectedActivity || !selectedTemplate) {
-      alert("请选择运动记录和模板");
+      alert(t("poster.selectActivityAndTemplate"));
       return;
     }
 
@@ -86,11 +90,11 @@ function PosterCreateContent() {
         // 跳转到海报预览页
         router.push(`/poster/${data.poster.id}`);
       } else {
-        alert(data.error || "创建失败");
+        alert(data.error || t("poster.createFailed"));
       }
     } catch (error) {
       console.error("Failed to create poster:", error);
-      alert("创建失败，请稍后重试");
+      alert(t("poster.createFailed"));
     } finally {
       setLoading(false);
     }
@@ -98,11 +102,11 @@ function PosterCreateContent() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold mb-8">创建海报</h1>
+      <h1 className="text-2xl font-bold mb-8">{t("poster.createTitle")}</h1>
 
       {/* 步骤1：选择运动记录 */}
       <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">1. 选择运动记录</h2>
+        <h2 className="text-lg font-semibold mb-4">1. {t("poster.selectActivity")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {activities.map((activity) => (
             <Card
@@ -115,7 +119,7 @@ function PosterCreateContent() {
               onClick={() => setSelectedActivity(activity.id)}
             >
               <CardContent className="p-4">
-                <p className="font-medium">{activity.name || "未命名活动"}</p>
+                <p className="font-medium">{activity.name || t("activities.unnamedActivity")}</p>
                 <p className="text-sm text-muted-foreground">
                   {(activity.distanceMeters / 1000).toFixed(2)} km ·{" "}
                   {new Date(activity.startTime).toLocaleDateString("zh-CN")}
@@ -128,7 +132,7 @@ function PosterCreateContent() {
 
       {/* 步骤2：选择模板 */}
       <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">2. 选择模板</h2>
+        <h2 className="text-lg font-semibold mb-4">2. {t("poster.selectTemplate")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {templates.map((template) => (
             <Card
@@ -143,7 +147,7 @@ function PosterCreateContent() {
               <CardContent className="p-4">
                 <p className="font-medium text-center">{template.name}</p>
                 <p className="text-xs text-muted-foreground text-center mt-2">
-                  {TEMPLATE_DESCRIPTIONS[template.key]}
+                  {getTemplateDescription(template.key)}
                 </p>
               </CardContent>
             </Card>
@@ -158,7 +162,7 @@ function PosterCreateContent() {
           type="text"
           value={customText}
           onChange={(e) => setCustomText(e.target.value)}
-          placeholder="例如：首马破4！"
+          placeholder={t("poster.customTextPlaceholder")}
           maxLength={50}
           className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
         />
@@ -174,15 +178,17 @@ function PosterCreateContent() {
         disabled={!selectedActivity || !selectedTemplate || loading}
         onClick={handleCreate}
       >
-        {loading ? "创建中..." : "生成海报"}
+        {loading ? t("poster.creating") : t("poster.generate")}
       </Button>
     </div>
   );
 }
 
 export default function PosterCreatePage() {
+  const t = useTranslations();
+
   return (
-    <Suspense fallback={<div className="container mx-auto py-8">加载中...</div>}>
+    <Suspense fallback={<div className="container mx-auto py-8">{t("common.loading")}</div>}>
       <PosterCreateContent />
     </Suspense>
   );

@@ -8,7 +8,12 @@
     "save": "保存",
     "delete": "删除",
     "edit": "编辑",
-    "submit": "提交"
+    "submit": "提交",
+    "back": "返回",
+    "rendering": "渲染中...",
+    "renderFailed": "渲染失败",
+    "notFound": "不存在",
+    "unnamed": "未命名"
   },
   "nav": {
     "home": "首页",
@@ -44,9 +49,14 @@
   "activities": {
     "title": "运动记录",
     "syncData": "同步数据",
+    "syncing": "同步中...",
+    "syncSuccess": "同步成功",
+    "syncFailed": "同步失败，请稍后重试",
+    "bindGarminFirst": "请先绑定佳明账号",
     "noActivities": "暂无运动记录",
     "noActivitiesDesc": "绑定 Garmin 账号后，同步您的运动数据",
     "bindGarmin": "绑定佳明",
+    "unnamedActivity": "未命名活动",
     "activityTypes": {
       "running": "跑步",
       "cycling": "骑行",
@@ -64,22 +74,46 @@
     "selectActivity": "选择运动记录",
     "selectTemplate": "选择模板",
     "generate": "生成海报",
+    "creating": "创建中...",
+    "createFailed": "创建失败，请稍后重试",
+    "selectActivityAndTemplate": "请选择运动记录和模板",
     "downloading": "下载中...",
     "download": "下载海报",
+    "downloadImage": "下载图片",
     "share": "分享",
+    "shareCopied": "已复制链接，可以分享给好友",
+    "deleteConfirm": "确定要删除这张海报吗？",
     "myPosters": "我的海报",
     "noPosters": "暂无海报",
-    "noPostersDesc": "选择运动记录和模板，生成您的第一张海报"
+    "noPostersDesc": "选择运动记录和模板，生成您的第一张海报",
+    "unnamedPoster": "未命名海报",
+    "sportsPoster": "运动海报",
+    "notFound": "海报不存在",
+    "customTextPlaceholder": "例如：首马破4！",
+    "templates": {
+      "achievement": "深色背景 + 金色装饰，适合马拉松完赛纪念",
+      "minimal": "白底 + 黑字，简约风格，适合日常训练",
+      "art": "渐变背景，艺术风格，适合社交媒体分享",
+      "trail": "大地色系，突出爬升数据，适合越野赛"
+    }
   },
   "profile": {
     "title": "个人中心",
     "bindGarmin": "绑定佳明",
     "unbindGarmin": "解绑佳明",
-    "garminConnected": "已绑定 Garmin",
-    "garminNotConnected": "未绑定 Garmin"
+    "garminConnected": "已绑定佳明",
+    "garminNotConnected": "未绑定 Garmin",
+    "garminConnectedDesc": "已绑定，可以同步运动数据",
+    "garminNotConnectedDesc": "绑定后可同步运动数据并生成海报",
+    "defaultUser": "用户",
+    "defaultBio": "这个人很懒，什么都没留下...",
+    "myWorks": "我的作品",
+    "noWorksDesc": "暂无作品，快去上传你的第一个表盘吧！",
+    "uploadWatchface": "上传表盘"
   },
   "admin": {
     "dashboard": "仪表盘",
+    "overview": "概览",
     "users": "用户管理",
     "templates": "模板管理",
     "watchfaces": "表盘审核",
@@ -91,7 +125,25 @@
     "noData": "暂无数据",
     "quickActions": "快速操作",
     "manageUsers": "管理用户",
-    "reviewWatchfaces": "审核表盘"
+    "reviewWatchfaces": "审核表盘",
+    "roles": {
+      "guest": "游客",
+      "user": "普通用户",
+      "creator": "创作者",
+      "admin": "管理员"
+    },
+    "statuses": {
+      "active": "正常",
+      "disabled": "禁用"
+    },
+    "templateStatus": {
+      "active": "启用",
+      "inactive": "禁用"
+    },
+    "price": {
+      "paid": "付费",
+      "free": "免费"
+    }
   },
   "users": {
     "title": "用户列表",
@@ -118,14 +170,21 @@
     "myWorks": "我的作品",
     "uploadNew": "上传新表盘",
     "name": "表盘名称",
+    "namePlaceholder": "请输入表盘名称",
     "category": "分类",
+    "categoryPlaceholder": "选择分类",
     "description": "描述",
+    "descriptionPlaceholder": "描述你的表盘特点...",
     "file": "表盘文件",
     "uploadHint": "点击上传或拖拽文件到此处",
     "uploadFormat": "支持 .garmin, .prg 格式，最大 10MB",
     "submit": "提交上传",
     "uploading": "上传中...",
     "uploadSuccess": "上传成功，等待审核",
+    "uploadFailed": "上传失败，请重试",
+    "invalidFormat": "只支持 .garmin 或 .prg 格式的文件",
+    "fileTooLarge": "文件大小不能超过 10MB",
+    "fillRequired": "请填写所有必填项",
     "categories": {
       "analog": "模拟表盘",
       "digital": "数字表盘",
@@ -139,6 +198,12 @@
     },
     "downloads": "下载",
     "likes": "点赞"
+  },
+  "upload": {
+    "title": "上传表盘",
+    "namePlaceholder": "给你的表盘起个名字",
+    "descriptionPlaceholder": "描述一下你的表盘设计...",
+    "tagsPlaceholder": "用逗号分隔多个标签，如：简约,运动,商务"
   },
   "forbidden": {
     "title": "403 禁止访问",

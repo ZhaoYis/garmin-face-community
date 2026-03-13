@@ -11,13 +11,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { getTranslations } from "next-intl/server";
 
 export default async function AdminTemplatesPage() {
+  const t = await getTranslations();
   const templates = await db.select().from(posterTemplates).orderBy(desc(posterTemplates.sortOrder));
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">模板管理</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("admin.templates")}</h1>
 
       <Card>
         <CardHeader>
@@ -29,9 +31,9 @@ export default async function AdminTemplatesPage() {
               <TableRow>
                 <TableHead>模板名称</TableHead>
                 <TableHead>Key</TableHead>
-                <TableHead>分类</TableHead>
-                <TableHead>价格</TableHead>
-                <TableHead>状态</TableHead>
+                <TableHead>{t("watchfaces.category")}</TableHead>
+                <TableHead>{t("admin.price.paid")}</TableHead>
+                <TableHead>{t("users.status")}</TableHead>
                 <TableHead>排序</TableHead>
               </TableRow>
             </TableHeader>
@@ -39,7 +41,7 @@ export default async function AdminTemplatesPage() {
               {templates.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted-foreground">
-                    暂无模板
+                    {t("admin.noData")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -52,14 +54,14 @@ export default async function AdminTemplatesPage() {
                     <TableCell>{template.category}</TableCell>
                     <TableCell>
                       {template.isFree ? (
-                        <Badge variant="secondary">免费</Badge>
+                        <Badge variant="secondary">{t("admin.price.free")}</Badge>
                       ) : (
-                        <span>{template.price || "付费"}</span>
+                        <span>{template.price || t("admin.price.paid")}</span>
                       )}
                     </TableCell>
                     <TableCell>
                       <Badge variant={template.status === "active" ? "default" : "outline"}>
-                        {template.status === "active" ? "启用" : "禁用"}
+                        {template.status === "active" ? t("admin.templateStatus.active") : t("admin.templateStatus.inactive")}
                       </Badge>
                     </TableCell>
                     <TableCell>{template.sortOrder}</TableCell>

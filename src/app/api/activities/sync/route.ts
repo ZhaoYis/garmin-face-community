@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { activities, users } from "@/lib/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { activities } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import {
   getValidAccessToken,
   isGarminConnected,
@@ -39,12 +39,6 @@ export async function POST() {
         { status: 401 }
       );
     }
-
-    // 获取用户信息以确定上次同步时间
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, session.user.id),
-      columns: { updatedAt: true },
-    });
 
     // 调用 Garmin API 获取运动数据
     const client = new GarminClient(accessToken);

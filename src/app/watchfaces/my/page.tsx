@@ -16,22 +16,11 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-
-const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  pending: { label: "审核中", variant: "outline" },
-  approved: { label: "已通过", variant: "default" },
-  rejected: { label: "已拒绝", variant: "destructive" },
-};
-
-const categoryLabels: Record<string, string> = {
-  analog: "模拟表盘",
-  digital: "数字表盘",
-  hybrid: "混合表盘",
-  fitness: "运动表盘",
-};
+import { getTranslations } from "next-intl/server";
 
 export default async function MyWatchfacesPage() {
   const session = await auth();
+  const t = await getTranslations();
 
   if (!session?.user || !hasPermission(session.user.role, PERMISSIONS.UPLOAD_WATCHFACE)) {
     redirect("/forbidden");
@@ -43,12 +32,39 @@ export default async function MyWatchfacesPage() {
     .where(eq(watchFaces.userId, session.user.id))
     .orderBy(desc(watchFaces.createdAt));
 
+  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+      pending: "outline",
+      approved: "default",
+      rejected: "destructive",
+    };
+    return variants[status] || "outline";
+  };
+
+  const getStatusLabel = (status: string) => {
+    const key = `watchfaces.statuses.${status}` as const;
+    try {
+      return t(key);
+    } catch {
+      return status;
+    }
+  };
+
+  const getCategoryLabel = (category: string) => {
+    const key = `watchfaces.categories.${category}` as const;
+    try {
+      return t(key);
+    } catch {
+      return category;
+    }
+  };
+
   return (
     <div className="container py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">我的作品</h1>
+        <h1 className="text-2xl font-bold">{t("watchfaces.myWorks")}</h1>
         <Link href="/watchfaces">
-          <Button>上传新表盘</Button>
+          <Button>{t("watchfaces.uploadNew")}</Button>
         </Link>
       </div>
 
@@ -60,11 +76,11 @@ export default async function MyWatchfacesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>名称</TableHead>
-                <TableHead>分类</TableHead>
-                <TableHead>状态</TableHead>
-                <TableHead>下载</TableHead>
-                <TableHead>点赞</TableHead>
+                <TableHead>{t("watchfaces.name")}</TableHead>
+                <TableHead>{t("watchfaces.category")}</TableHead>
+                <TableHead>{t("users.status")}</TableHead>
+                <TableHead>{t("watchfaces.downloads")}</TableHead>
+                <TableHead>{t("watchfaces.likes")}</TableHead>
                 <TableHead>上传时间</TableHead>
               </TableRow>
             </TableHeader>
@@ -72,9 +88,9 @@ export default async function MyWatchfacesPage() {
               {myWatchfaces.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted-foreground">
-                    暂无作品，
+                    {t("profile.noWorksDesc")}，
                     <Link href="/watchfaces" className="text-primary hover:underline">
-                      立即上传
+                      {t("watchfaces.uploadNew")}
                     </Link>
                   </TableCell>
                 </TableRow>
@@ -82,10 +98,10 @@ export default async function MyWatchfacesPage() {
                 myWatchfaces.map((wf) => (
                   <TableRow key={wf.id}>
                     <TableCell className="font-medium">{wf.name}</TableCell>
-                    <TableCell>{categoryLabels[wf.category] || wf.category}</TableCell>
+                    <TableCell>{getCategoryLabel(wf.category)}</TableCell>
                     <TableCell>
-                      <Badge variant={statusLabels[wf.status]?.variant || "outline"}>
-                        {statusLabels[wf.status]?.label || wf.status}
+                      <Badge variant={getStatusVariant(wf.status)}>
+                        {getStatusLabel(wf.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>{wf.downloads}</TableCell>

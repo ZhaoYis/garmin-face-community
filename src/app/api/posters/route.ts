@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { posters, activities, posterTemplates } from "@/lib/db/schema";
+import { posters } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 
 // GET /api/posters - 获取我的海报列表

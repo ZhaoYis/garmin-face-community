@@ -3,13 +3,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { Users, LayoutTemplate, FileCheck, Settings } from "lucide-react";
-
-const adminNavItems = [
-  { href: "/admin", label: "概览", icon: Settings },
-  { href: "/admin/users", label: "用户管理", icon: Users },
-  { href: "/admin/templates", label: "模板管理", icon: LayoutTemplate },
-  { href: "/admin/watchfaces", label: "表盘审核", icon: FileCheck },
-];
+import { getTranslations } from "next-intl/server";
 
 export default async function AdminLayout({
   children,
@@ -17,10 +11,18 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
+  const t = await getTranslations();
 
   if (!session?.user || !hasPermission(session.user.role, PERMISSIONS.ACCESS_ADMIN)) {
     redirect("/forbidden");
   }
+
+  const adminNavItems = [
+    { href: "/admin", label: t("admin.overview"), icon: Settings },
+    { href: "/admin/users", label: t("admin.users"), icon: Users },
+    { href: "/admin/templates", label: t("admin.templates"), icon: LayoutTemplate },
+    { href: "/admin/watchfaces", label: t("admin.watchfaces"), icon: FileCheck },
+  ];
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -28,7 +30,7 @@ export default async function AdminLayout({
         {/* Sidebar */}
         <aside className="w-64 min-h-screen bg-background border-r">
           <div className="p-6">
-            <h1 className="text-xl font-bold">管理后台</h1>
+            <h1 className="text-xl font-bold">{t("nav.admin")}</h1>
           </div>
           <nav className="space-y-1 px-3">
             {adminNavItems.map((item) => (

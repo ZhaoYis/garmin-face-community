@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { renderPoster } from "@/lib/poster/renderers";
 import { canvasToDataURL } from "@/lib/poster/canvas";
+import type { Activity } from "@/lib/db/schema";
 
 interface Poster {
   id: string;
@@ -16,25 +18,13 @@ interface Poster {
     name: string;
     key: string;
   };
-  activity: {
-    id: string;
-    activityType: string;
-    name: string;
-    startTime: Date;
-    durationSeconds: number;
-    distanceMeters: number;
-    avgPaceSeconds: number;
-    avgHr: number;
-    maxHr: number;
-    elevationGain: number;
-    polyline?: string;
-  };
+  activity: Activity;
 }
 
 export default function PosterDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const t = useTranslations();
   const [poster, setPoster] = useState<Poster | null>(null);
   const [loading, setLoading] = useState(true);
   const [rendering, setRendering] = useState(false);
@@ -67,7 +57,7 @@ export default function PosterDetailPage() {
       setTimeout(() => {
         try {
           const canvas = renderPoster(poster.template.key, {
-            activity: poster.activity as any,
+            activity: poster.activity,
             customText: poster.customText,
           });
 
@@ -119,19 +109,19 @@ export default function PosterDetailPage() {
         const file = new File([blob], "poster.png", { type: "image/png" });
 
         await navigator.share({
-          title: poster.title || "运动海报",
+          title: poster.title || t("poster.sportsPoster"),
           files: [file],
         });
       } catch (error) {
         console.error("Share failed:", error);
       }
     } else {
-      alert("已复制链接，可以分享给好友");
+      alert(t("poster.shareCopied"));
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm("确定要删除这张海报吗？")) return;
+    if (!confirm(t("poster.deleteConfirm"))) return;
 
     try {
       await fetch(`/api/posters/${poster?.id}`, { method: "DELETE" });
@@ -142,13 +132,13 @@ export default function PosterDetailPage() {
   };
 
   if (loading) {
-    return <div className="container mx-auto py-8">加载中...</div>;
+    return <div className="container mx-auto py-8">{t("common.loading")}</div>;
   }
 
   if (!poster) {
     return (
       <div className="container mx-auto py-8">
-        <p>海报不存在</p>
+        <p>{t("poster.notFound")}</p>
       </div>
     );
   }
@@ -157,7 +147,7 @@ export default function PosterDetailPage() {
     <div className="container mx-auto py-8 px-4 max-w-lg">
       <div className="flex items-center gap-4 mb-6">
         <Button variant="ghost" onClick={() => router.back()}>
-          ← 返回
+          ← {t("common.back")}
         </Button>
       </div>
 
@@ -165,18 +155,18 @@ export default function PosterDetailPage() {
       <div className="bg-muted rounded-lg overflow-hidden mb-6">
         {rendering ? (
           <div className="aspect-[9/16] flex items-center justify-center">
-            渲染中...
+            {t("common.rendering")}
           </div>
         ) : imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imageUrl}
-            alt={poster.title || "海报"}
+            alt={poster.title || t("poster.sportsPoster")}
             className="w-full h-auto"
           />
         ) : (
           <div className="aspect-[9/16] flex items-center justify-center">
-            渲染失败
+            {t("common.renderFailed")}
           </div>
         )}
       </div>
@@ -184,10 +174,10 @@ export default function PosterDetailPage() {
       {/* 操作按钮 */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <Button onClick={handleDownload} disabled={!imageUrl}>
-          下载图片
+          {t("poster.downloadImage")}
         </Button>
         <Button variant="outline" onClick={handleShare} disabled={!imageUrl}>
-          分享
+          {t("poster.share")}
         </Button>
       </div>
 
@@ -196,7 +186,7 @@ export default function PosterDetailPage() {
         className="w-full"
         onClick={handleDelete}
       >
-        删除海报
+        {t("common.delete")}
       </Button>
 
       {/* 海报信息 */}

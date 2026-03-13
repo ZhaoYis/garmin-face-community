@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,15 +17,9 @@ interface Activity {
   avgPaceSeconds: number;
 }
 
-const ACTIVITY_TYPE_LABELS: Record<string, string> = {
-  running: "跑步",
-  cycling: "骑行",
-  swimming: "游泳",
-  trail: "越野",
-};
-
 export default function ActivitiesPage() {
   const router = useRouter();
+  const t = useTranslations();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -48,18 +43,18 @@ export default function ActivitiesPage() {
       const data = await res.json();
 
       if (data.error === "Garmin not connected") {
-        alert("请先绑定佳明账号");
+        alert(t("activities.bindGarminFirst"));
         router.push("/profile");
         return;
       }
 
       if (data.success) {
-        alert(`同步成功！新增 ${data.synced} 条记录`);
+        alert(t("activities.syncSuccess"));
         fetchActivities();
       }
     } catch (error) {
       console.error("Failed to sync:", error);
-      alert("同步失败，请稍后重试");
+      alert(t("activities.syncFailed"));
     } finally {
       setSyncing(false);
     }
@@ -98,22 +93,31 @@ export default function ActivitiesPage() {
     });
   };
 
+  const getActivityTypeLabel = (type: string) => {
+    const key = `activities.activityTypes.${type}` as const;
+    try {
+      return t(key);
+    } catch {
+      return type;
+    }
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">运动记录</h1>
+        <h1 className="text-2xl font-bold">{t("activities.title")}</h1>
         <Button onClick={handleSync} disabled={syncing}>
-          {syncing ? "同步中..." : "同步数据"}
+          {syncing ? t("activities.syncing") : t("activities.syncData")}
         </Button>
       </div>
 
       {loading ? (
-        <div className="text-center py-12">加载中...</div>
+        <div className="text-center py-12">{t("common.loading")}</div>
       ) : activities.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-muted-foreground mb-4">暂无运动记录</p>
+          <p className="text-muted-foreground mb-4">{t("activities.noActivities")}</p>
           <Button onClick={handleSync} disabled={syncing}>
-            同步 Garmin 数据
+            {t("activities.syncData")}
           </Button>
         </div>
       ) : (
@@ -127,11 +131,10 @@ export default function ActivitiesPage() {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">
-                    {activity.name || "未命名活动"}
+                    {activity.name || t("activities.unnamedActivity")}
                   </CardTitle>
                   <Badge>
-                    {ACTIVITY_TYPE_LABELS[activity.activityType] ||
-                      activity.activityType}
+                    {getActivityTypeLabel(activity.activityType)}
                   </Badge>
                 </div>
               </CardHeader>
@@ -142,19 +145,19 @@ export default function ActivitiesPage() {
                     <p className="font-medium">{formatDate(activity.startTime)}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">距离</p>
+                    <p className="text-muted-foreground">{t("activities.distance")}</p>
                     <p className="font-medium">
                       {formatDistance(activity.distanceMeters)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">时长</p>
+                    <p className="text-muted-foreground">{t("activities.duration")}</p>
                     <p className="font-medium">
                       {formatDuration(activity.durationSeconds)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">配速</p>
+                    <p className="text-muted-foreground">{t("activities.pace")}</p>
                     <p className="font-medium">
                       {formatPace(activity.avgPaceSeconds)}
                     </p>

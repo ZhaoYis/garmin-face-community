@@ -12,42 +12,65 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { UserRole } from "@/lib/db/schema";
-
-const roleLabels: Record<UserRole, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  guest: { label: "游客", variant: "outline" },
-  user: { label: "普通用户", variant: "secondary" },
-  creator: { label: "创作者", variant: "default" },
-  admin: { label: "管理员", variant: "destructive" },
-};
+import { getTranslations } from "next-intl/server";
 
 export default async function AdminUsersPage() {
+  const t = await getTranslations();
   const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
+
+  const getRoleVariant = (role: UserRole): "default" | "secondary" | "destructive" | "outline" => {
+    const variants: Record<UserRole, "default" | "secondary" | "destructive" | "outline"> = {
+      guest: "outline",
+      user: "secondary",
+      creator: "default",
+      admin: "destructive",
+    };
+    return variants[role] || "outline";
+  };
+
+  const getRoleLabel = (role: UserRole) => {
+    const key = `admin.roles.${role}` as const;
+    try {
+      return t(key);
+    } catch {
+      return role;
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    const key = `admin.statuses.${status}` as const;
+    try {
+      return t(key);
+    } catch {
+      return status;
+    }
+  };
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">用户管理</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("admin.users")}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>用户列表</CardTitle>
+          <CardTitle>{t("users.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>用户名</TableHead>
-                <TableHead>邮箱</TableHead>
-                <TableHead>角色</TableHead>
-                <TableHead>状态</TableHead>
-                <TableHead>注册时间</TableHead>
-                <TableHead>操作</TableHead>
+                <TableHead>{t("users.name")}</TableHead>
+                <TableHead>{t("users.email")}</TableHead>
+                <TableHead>{t("users.role")}</TableHead>
+                <TableHead>{t("users.status")}</TableHead>
+                <TableHead>{t("users.createdAt")}</TableHead>
+                <TableHead>{t("users.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {allUsers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted-foreground">
-                    暂无用户
+                    {t("admin.noData")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -56,20 +79,20 @@ export default async function AdminUsersPage() {
                     <TableCell className="font-medium">{user.name || "-"}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      <Badge variant={roleLabels[user.role as UserRole]?.variant || "outline"}>
-                        {roleLabels[user.role as UserRole]?.label || user.role}
+                      <Badge variant={getRoleVariant(user.role as UserRole)}>
+                        {getRoleLabel(user.role as UserRole)}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant={user.status === "active" ? "default" : "destructive"}>
-                        {user.status === "active" ? "正常" : "禁用"}
+                        {getStatusLabel(user.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       {user.createdAt?.toLocaleDateString("zh-CN")}
                     </TableCell>
                     <TableCell>
-                      <span className="text-muted-foreground text-sm">暂无操作</span>
+                      <span className="text-muted-foreground text-sm">{t("users.noActions")}</span>
                     </TableCell>
                   </TableRow>
                 ))

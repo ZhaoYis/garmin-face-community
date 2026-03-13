@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,19 +16,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, Loader2 } from "lucide-react";
 
-const categories = [
-  { value: "analog", label: "模拟表盘" },
-  { value: "digital", label: "数字表盘" },
-  { value: "hybrid", label: "混合表盘" },
-  { value: "fitness", label: "运动表盘" },
-];
-
 interface WatchfaceUploadFormProps {
   userId: string;
 }
 
-export function WatchfaceUploadForm({ userId }: WatchfaceUploadFormProps) {
+export function WatchfaceUploadForm({ userId: _userId }: WatchfaceUploadFormProps) {
   const router = useRouter();
+  const t = useTranslations();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -36,10 +31,17 @@ export function WatchfaceUploadForm({ userId }: WatchfaceUploadFormProps) {
     file: null as File | null,
   });
 
+  const categories = [
+    { value: "analog", label: t("watchfaces.categories.analog") },
+    { value: "digital", label: t("watchfaces.categories.digital") },
+    { value: "hybrid", label: t("watchfaces.categories.hybrid") },
+    { value: "fitness", label: t("watchfaces.categories.fitness") },
+  ];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.file || !formData.name || !formData.category) {
-      alert("请填写所有必填项");
+      alert(t("watchfaces.fillRequired"));
       return;
     }
 
@@ -48,13 +50,13 @@ export function WatchfaceUploadForm({ userId }: WatchfaceUploadFormProps) {
     const fileName = formData.file.name.toLowerCase();
     const isValid = validExtensions.some((ext) => fileName.endsWith(ext));
     if (!isValid) {
-      alert("只支持 .garmin 或 .prg 格式的文件");
+      alert(t("watchfaces.invalidFormat"));
       return;
     }
 
     // 文件大小验证 (10MB)
     if (formData.file.size > 10 * 1024 * 1024) {
-      alert("文件大小不能超过 10MB");
+      alert(t("watchfaces.fileTooLarge"));
       return;
     }
 
@@ -72,14 +74,14 @@ export function WatchfaceUploadForm({ userId }: WatchfaceUploadFormProps) {
       });
 
       if (response.ok) {
-        alert("上传成功，等待审核");
+        alert(t("watchfaces.uploadSuccess"));
         router.push("/watchfaces/my");
       } else {
         const error = await response.json();
-        alert(error.message || "上传失败");
+        alert(error.message || t("watchfaces.uploadFailed"));
       }
     } catch {
-      alert("上传失败，请重试");
+      alert(t("watchfaces.uploadFailed"));
     } finally {
       setLoading(false);
     }
@@ -88,24 +90,24 @@ export function WatchfaceUploadForm({ userId }: WatchfaceUploadFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
       <div className="space-y-2">
-        <Label htmlFor="name">表盘名称 *</Label>
+        <Label htmlFor="name">{t("watchfaces.name")} *</Label>
         <Input
           id="name"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          placeholder="请输入表盘名称"
+          placeholder={t("watchfaces.namePlaceholder")}
           required
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="category">分类 *</Label>
+        <Label htmlFor="category">{t("watchfaces.category")} *</Label>
         <Select
           value={formData.category}
           onValueChange={(value) => setFormData({ ...formData, category: value })}
         >
           <SelectTrigger>
-            <SelectValue placeholder="选择分类" />
+            <SelectValue placeholder={t("watchfaces.categoryPlaceholder")} />
           </SelectTrigger>
           <SelectContent>
             {categories.map((cat) => (
@@ -118,18 +120,18 @@ export function WatchfaceUploadForm({ userId }: WatchfaceUploadFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">描述</Label>
+        <Label htmlFor="description">{t("watchfaces.description")}</Label>
         <Textarea
           id="description"
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          placeholder="描述你的表盘特点..."
+          placeholder={t("watchfaces.descriptionPlaceholder")}
           rows={4}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="file">表盘文件 *</Label>
+        <Label htmlFor="file">{t("watchfaces.file")} *</Label>
         <div className="border-2 border-dashed rounded-lg p-8 text-center">
           <Input
             id="file"
@@ -141,10 +143,10 @@ export function WatchfaceUploadForm({ userId }: WatchfaceUploadFormProps) {
           <label htmlFor="file" className="cursor-pointer">
             <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">
-              点击上传或拖拽文件到此处
+              {t("watchfaces.uploadHint")}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              支持 .garmin, .prg 格式，最大 10MB
+              {t("watchfaces.uploadFormat")}
             </p>
           </label>
           {formData.file && (
@@ -159,10 +161,10 @@ export function WatchfaceUploadForm({ userId }: WatchfaceUploadFormProps) {
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            上传中...
+            {t("watchfaces.uploading")}
           </>
         ) : (
-          "提交上传"
+          t("watchfaces.submit")
         )}
       </Button>
     </form>

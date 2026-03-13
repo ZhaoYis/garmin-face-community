@@ -4,6 +4,7 @@ import { Users, Watch, FileCheck, BarChart } from "lucide-react";
 import { db } from "@/lib/db";
 import { users, watchFaces } from "@/lib/db/schema";
 import { count, sql } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 
 async function getStats() {
   const [userCount] = await db.select({ count: count() }).from(users);
@@ -26,17 +27,18 @@ async function getStats() {
 
 export default async function AdminDashboardPage() {
   const stats = await getStats();
+  const t = await getTranslations();
 
   const statCards = [
-    { title: "总用户", value: stats.users, icon: Users },
-    { title: "总表盘", value: stats.watchfaces, icon: Watch },
-    { title: "待审核", value: stats.pending, icon: FileCheck },
-    { title: "总下载", value: stats.downloads, icon: BarChart },
+    { title: t("admin.totalUsers"), value: stats.users, icon: Users },
+    { title: t("admin.totalWatchfaces"), value: stats.watchfaces, icon: Watch },
+    { title: t("admin.pending"), value: stats.pending, icon: FileCheck },
+    { title: t("admin.totalDownloads"), value: stats.downloads, icon: BarChart },
   ];
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">仪表盘</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("admin.dashboard")}</h1>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -56,7 +58,7 @@ export default async function AdminDashboardPage() {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>快速操作</CardTitle>
+          <CardTitle>{t("admin.quickActions")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4">
@@ -64,13 +66,13 @@ export default async function AdminDashboardPage() {
               href="/admin/users"
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
             >
-              管理用户
+              {t("admin.manageUsers")}
             </Link>
             <Link
               href="/admin/watchfaces"
               className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80"
             >
-              审核表盘
+              {t("admin.reviewWatchfaces")}
             </Link>
           </div>
         </CardContent>

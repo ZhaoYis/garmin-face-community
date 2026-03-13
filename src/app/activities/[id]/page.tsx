@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,16 +22,10 @@ interface Activity {
   polyline?: string;
 }
 
-const ACTIVITY_TYPE_LABELS: Record<string, string> = {
-  running: "跑步",
-  cycling: "骑行",
-  swimming: "游泳",
-  trail: "越野",
-};
-
 export default function ActivityDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const t = useTranslations();
   const [activity, setActivity] = useState<Activity | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -57,9 +52,9 @@ export default function ActivityDetailPage() {
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
     if (h > 0) {
-      return `${h}小时${m}分${s}秒`;
+      return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
     }
-    return `${m}分${s}秒`;
+    return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
   const formatDistance = (meters: number) => {
@@ -82,16 +77,25 @@ export default function ActivityDetailPage() {
     });
   };
 
+  const getActivityTypeLabel = (type: string) => {
+    const key = `activities.activityTypes.${type}` as const;
+    try {
+      return t(key);
+    } catch {
+      return type;
+    }
+  };
+
   if (loading) {
-    return <div className="container mx-auto py-8">加载中...</div>;
+    return <div className="container mx-auto py-8">{t("common.loading")}</div>;
   }
 
   if (!activity) {
     return (
       <div className="container mx-auto py-8">
-        <p>运动记录不存在</p>
+        <p>{t("activities.unnamedActivity")}</p>
         <Button className="mt-4" onClick={() => router.push("/activities")}>
-          返回列表
+          {t("common.back")}
         </Button>
       </div>
     );
@@ -101,7 +105,7 @@ export default function ActivityDetailPage() {
     <div className="container mx-auto py-8 px-4">
       <div className="flex items-center gap-4 mb-8">
         <Button variant="ghost" onClick={() => router.back()}>
-          ← 返回
+          ← {t("common.back")}
         </Button>
       </div>
 
@@ -109,11 +113,10 @@ export default function ActivityDetailPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl">
-              {activity.name || "未命名活动"}
+              {activity.name || t("activities.unnamedActivity")}
             </CardTitle>
             <Badge className="text-base px-4 py-1">
-              {ACTIVITY_TYPE_LABELS[activity.activityType] ||
-                activity.activityType}
+              {getActivityTypeLabel(activity.activityType)}
             </Badge>
           </div>
           <p className="text-muted-foreground">{formatDate(activity.startTime)}</p>
@@ -125,26 +128,26 @@ export default function ActivityDetailPage() {
               <p className="text-4xl font-bold text-primary">
                 {formatDistance(activity.distanceMeters)}
               </p>
-              <p className="text-muted-foreground mt-1">总距离</p>
+              <p className="text-muted-foreground mt-1">{t("activities.distance")}</p>
             </div>
             <div className="text-center p-4 bg-primary/5 rounded-lg">
               <p className="text-4xl font-bold text-primary">
                 {formatDuration(activity.durationSeconds)}
               </p>
-              <p className="text-muted-foreground mt-1">运动时长</p>
+              <p className="text-muted-foreground mt-1">{t("activities.duration")}</p>
             </div>
           </div>
 
           {/* 详细数据 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="p-4 border rounded-lg">
-              <p className="text-muted-foreground text-sm">平均配速</p>
+              <p className="text-muted-foreground text-sm">{t("activities.pace")}</p>
               <p className="text-xl font-semibold">
                 {formatPace(activity.avgPaceSeconds)}
               </p>
             </div>
             <div className="p-4 border rounded-lg">
-              <p className="text-muted-foreground text-sm">平均心率</p>
+              <p className="text-muted-foreground text-sm">{t("activities.heartRate")}</p>
               <p className="text-xl font-semibold">
                 {activity.avgHr ? `${activity.avgHr} bpm` : "-"}
               </p>
@@ -156,7 +159,7 @@ export default function ActivityDetailPage() {
               </p>
             </div>
             <div className="p-4 border rounded-lg">
-              <p className="text-muted-foreground text-sm">累计爬升</p>
+              <p className="text-muted-foreground text-sm">{t("activities.elevation")}</p>
               <p className="text-xl font-semibold">
                 {activity.elevationGain ? `${activity.elevationGain} m` : "-"}
               </p>
@@ -177,7 +180,7 @@ export default function ActivityDetailPage() {
         size="lg"
         onClick={() => router.push(`/poster/create?activityId=${activity.id}`)}
       >
-        生成海报
+        {t("poster.generate")}
       </Button>
     </div>
   );

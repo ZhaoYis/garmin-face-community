@@ -8,7 +8,12 @@
     "save": "Save",
     "delete": "Delete",
     "edit": "Edit",
-    "submit": "Submit"
+    "submit": "Submit",
+    "back": "Back",
+    "rendering": "Rendering...",
+    "renderFailed": "Render failed",
+    "notFound": "Not found",
+    "unnamed": "Unnamed"
   },
   "nav": {
     "home": "Home",
@@ -44,9 +49,14 @@
   "activities": {
     "title": "Activities",
     "syncData": "Sync Data",
+    "syncing": "Syncing...",
+    "syncSuccess": "Sync successful",
+    "syncFailed": "Sync failed, please try again later",
+    "bindGarminFirst": "Please bind your Garmin account first",
     "noActivities": "No activities yet",
     "noActivitiesDesc": "Bind your Garmin account to sync your sports data",
     "bindGarmin": "Bind Garmin",
+    "unnamedActivity": "Unnamed activity",
     "activityTypes": {
       "running": "Running",
       "cycling": "Cycling",
@@ -64,22 +74,46 @@
     "selectActivity": "Select Activity",
     "selectTemplate": "Select Template",
     "generate": "Generate Poster",
+    "creating": "Creating...",
+    "createFailed": "Failed to create, please try again later",
+    "selectActivityAndTemplate": "Please select activity and template",
     "downloading": "Downloading...",
     "download": "Download Poster",
+    "downloadImage": "Download Image",
     "share": "Share",
+    "shareCopied": "Link copied, you can share with friends",
+    "deleteConfirm": "Are you sure you want to delete this poster?",
     "myPosters": "My Posters",
     "noPosters": "No posters yet",
-    "noPostersDesc": "Select an activity and template to generate your first poster"
+    "noPostersDesc": "Select an activity and template to generate your first poster",
+    "unnamedPoster": "Unnamed poster",
+    "sportsPoster": "Sports Poster",
+    "notFound": "Poster not found",
+    "customTextPlaceholder": "e.g., First marathon under 4 hours!",
+    "templates": {
+      "achievement": "Dark background + gold accents, perfect for marathon finish",
+      "minimal": "White background + black text, minimalist style for daily training",
+      "art": "Gradient background, artistic style for social media sharing",
+      "trail": "Earth tones, highlights elevation data for trail running"
+    }
   },
   "profile": {
     "title": "Profile",
     "bindGarmin": "Bind Garmin",
     "unbindGarmin": "Unbind Garmin",
     "garminConnected": "Garmin Connected",
-    "garminNotConnected": "Garmin Not Connected"
+    "garminNotConnected": "Garmin Not Connected",
+    "garminConnectedDesc": "Connected, can sync activity data",
+    "garminNotConnectedDesc": "Connect to sync activity data and generate posters",
+    "defaultUser": "User",
+    "defaultBio": "No bio yet...",
+    "myWorks": "My Works",
+    "noWorksDesc": "No works yet, upload your first watch face!",
+    "uploadWatchface": "Upload Watch Face"
   },
   "admin": {
     "dashboard": "Dashboard",
+    "overview": "Overview",
     "users": "Users",
     "templates": "Templates",
     "watchfaces": "Watch Faces",
@@ -91,7 +125,25 @@
     "noData": "No data",
     "quickActions": "Quick Actions",
     "manageUsers": "Manage Users",
-    "reviewWatchfaces": "Review Watch Faces"
+    "reviewWatchfaces": "Review Watch Faces",
+    "roles": {
+      "guest": "Guest",
+      "user": "User",
+      "creator": "Creator",
+      "admin": "Admin"
+    },
+    "statuses": {
+      "active": "Active",
+      "disabled": "Disabled"
+    },
+    "templateStatus": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "price": {
+      "paid": "Paid",
+      "free": "Free"
+    }
   },
   "users": {
     "title": "User List",
@@ -118,14 +170,21 @@
     "myWorks": "My Works",
     "uploadNew": "Upload New",
     "name": "Name",
+    "namePlaceholder": "Enter watch face name",
     "category": "Category",
+    "categoryPlaceholder": "Select category",
     "description": "Description",
+    "descriptionPlaceholder": "Describe your watch face...",
     "file": "Watch Face File",
     "uploadHint": "Click to upload or drag and drop",
     "uploadFormat": "Supports .garmin, .prg formats, max 10MB",
     "submit": "Submit Upload",
     "uploading": "Uploading...",
     "uploadSuccess": "Upload successful, pending review",
+    "uploadFailed": "Upload failed, please try again",
+    "invalidFormat": "Only .garmin or .prg formats are supported",
+    "fileTooLarge": "File size cannot exceed 10MB",
+    "fillRequired": "Please fill in all required fields",
     "categories": {
       "analog": "Analog",
       "digital": "Digital",
@@ -139,6 +198,12 @@
     },
     "downloads": "Downloads",
     "likes": "Likes"
+  },
+  "upload": {
+    "title": "Upload Watch Face",
+    "namePlaceholder": "Give your watch face a name",
+    "descriptionPlaceholder": "Describe your watch face design...",
+    "tagsPlaceholder": "Separate tags with commas, e.g., minimal, sports, business"
   },
   "forbidden": {
     "title": "403 Forbidden",

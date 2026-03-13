@@ -11,7 +11,7 @@ interface GarminBindButtonProps {
 
 export function GarminBindButton({
   isConnected,
-  onConnect,
+  onConnect: _onConnect,
   onDisconnect,
 }: GarminBindButtonProps) {
   const [loading, setLoading] = useState(false);

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -26,6 +27,7 @@ interface Poster {
 
 export default function MyPostersPage() {
   const router = useRouter();
+  const t = useTranslations();
   const [posters, setPosters] = useState<Poster[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,19 +58,19 @@ export default function MyPostersPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">我的海报</h1>
+        <h1 className="text-2xl font-bold">{t("poster.myPosters")}</h1>
         <Button onClick={() => router.push("/poster/create")}>
-          创建新海报
+          {t("poster.generate")}
         </Button>
       </div>
 
       {loading ? (
-        <div className="text-center py-12">加载中...</div>
+        <div className="text-center py-12">{t("common.loading")}</div>
       ) : posters.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-muted-foreground mb-4">暂无海报</p>
+          <p className="text-muted-foreground mb-4">{t("poster.noPosters")}</p>
           <Button onClick={() => router.push("/poster/create")}>
-            创建第一张海报
+            {t("poster.generate")}
           </Button>
         </div>
       ) : (
@@ -84,22 +86,22 @@ export default function MyPostersPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={poster.imageUrl}
-                    alt={poster.title || "海报"}
+                    alt={poster.title || t("poster.sportsPoster")}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    无预览
+                    {t("common.notFound")}
                   </div>
                 )}
               </div>
               <CardContent className="p-3">
                 <p className="font-medium truncate">
-                  {poster.title || poster.activity?.name || "未命名海报"}
+                  {poster.title || poster.activity?.name || t("poster.unnamedPoster")}
                 </p>
                 <div className="flex justify-between text-xs text-muted-foreground mt-1">
                   <span>{formatDate(poster.createdAt)}</span>
-                  <span>分享 {poster.shareCount || 0}</span>
+                  <span>{t("poster.share")} {poster.shareCount || 0}</span>
                 </div>
               </CardContent>
             </Card>

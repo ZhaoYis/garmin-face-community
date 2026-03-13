@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 export default async function UploadPage() {
   const session = await auth();
+  const t = await getTranslations();
 
   if (!session?.user?.id) {
     redirect("/auth/signin");
@@ -20,38 +22,38 @@ export default async function UploadPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Upload className="w-5 h-5" />
-              上传表盘
+              {t("upload.title")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <form className="space-y-6">
               <div>
-                <label className="text-sm font-medium mb-2 block">表盘名称</label>
-                <Input placeholder="给你的表盘起个名字" required />
+                <label className="text-sm font-medium mb-2 block">{t("watchfaces.name")}</label>
+                <Input placeholder={t("upload.namePlaceholder")} required />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">表盘描述</label>
+                <label className="text-sm font-medium mb-2 block">{t("watchfaces.description")}</label>
                 <Textarea
-                  placeholder="描述一下你的表盘设计..."
+                  placeholder={t("upload.descriptionPlaceholder")}
                   rows={4}
                   required
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">分类</label>
+                <label className="text-sm font-medium mb-2 block">{t("watchfaces.category")}</label>
                 <select className="w-full px-3 py-2 rounded-md border bg-background">
-                  <option value="analog">模拟表盘</option>
-                  <option value="digital">数字表盘</option>
-                  <option value="hybrid">混合表盘</option>
-                  <option value="fitness">运动表盘</option>
+                  <option value="analog">{t("watchfaces.categories.analog")}</option>
+                  <option value="digital">{t("watchfaces.categories.digital")}</option>
+                  <option value="hybrid">{t("watchfaces.categories.hybrid")}</option>
+                  <option value="fitness">{t("watchfaces.categories.fitness")}</option>
                 </select>
               </div>
 
               <div>
                 <label className="text-sm font-medium mb-2 block">标签</label>
-                <Input placeholder="用逗号分隔多个标签，如：简约,运动,商务" />
+                <Input placeholder={t("upload.tagsPlaceholder")} />
               </div>
 
               <div>
@@ -60,12 +62,12 @@ export default async function UploadPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">表盘文件</label>
+                <label className="text-sm font-medium mb-2 block">{t("watchfaces.file")}</label>
                 <Input type="file" accept=".watchface,.zip" required />
               </div>
 
               <Button type="submit" className="w-full">
-                提交审核
+                {t("common.submit")}
               </Button>
             </form>
           </CardContent>

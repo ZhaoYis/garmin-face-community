@@ -11,9 +11,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 export default async function AdminWatchfacesPage() {
+  const t = await getTranslations();
   const watchfacesList = await db
     .select({
       id: watchFaces.id,
@@ -30,15 +31,27 @@ export default async function AdminWatchfacesPage() {
     .leftJoin(users, eq(watchFaces.userId, users.id))
     .orderBy(desc(watchFaces.createdAt));
 
-  const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-    pending: { label: "待审核", variant: "outline" },
-    approved: { label: "已通过", variant: "default" },
-    rejected: { label: "已拒绝", variant: "destructive" },
+  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+      pending: "outline",
+      approved: "default",
+      rejected: "destructive",
+    };
+    return variants[status] || "outline";
+  };
+
+  const getStatusLabel = (status: string) => {
+    const key = `watchfaces.statuses.${status}` as const;
+    try {
+      return t(key);
+    } catch {
+      return status;
+    }
   };
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">表盘审核</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("admin.watchfaces")}</h1>
 
       <Card>
         <CardHeader>
@@ -48,12 +61,12 @@ export default async function AdminWatchfacesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>名称</TableHead>
+                <TableHead>{t("watchfaces.name")}</TableHead>
                 <TableHead>作者</TableHead>
-                <TableHead>分类</TableHead>
-                <TableHead>状态</TableHead>
-                <TableHead>下载</TableHead>
-                <TableHead>点赞</TableHead>
+                <TableHead>{t("watchfaces.category")}</TableHead>
+                <TableHead>{t("users.status")}</TableHead>
+                <TableHead>{t("watchfaces.downloads")}</TableHead>
+                <TableHead>{t("watchfaces.likes")}</TableHead>
                 <TableHead>上传时间</TableHead>
               </TableRow>
             </TableHeader>
@@ -61,7 +74,7 @@ export default async function AdminWatchfacesPage() {
               {watchfacesList.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center text-muted-foreground">
-                    暂无表盘作品
+                    {t("admin.noData")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -71,8 +84,8 @@ export default async function AdminWatchfacesPage() {
                     <TableCell>{wf.userName || wf.userEmail || "-"}</TableCell>
                     <TableCell>{wf.category}</TableCell>
                     <TableCell>
-                      <Badge variant={statusLabels[wf.status]?.variant || "outline"}>
-                        {statusLabels[wf.status]?.label || wf.status}
+                      <Badge variant={getStatusVariant(wf.status)}>
+                        {getStatusLabel(wf.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>{wf.downloads}</TableCell>

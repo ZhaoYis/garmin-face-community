@@ -2,7 +2,9 @@ import crypto from "crypto";
 
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 16;
-const AUTH_TAG_LENGTH = 16;
+// AUTH_TAG_LENGTH is defined for documentation purposes
+// The auth tag length is determined by the algorithm (16 bytes for AES-GCM)
+const _AUTH_TAG_LENGTH = 16;
 const SALT_LENGTH = 64;
 
 /**
