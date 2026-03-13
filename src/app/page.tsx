@@ -1,49 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Search, Upload, Heart, Download, Activity, Image, User } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Heart, Activity, Image } from "lucide-react";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold">
-              Garmin 表盘社区
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link href="/activities">
-                <Button variant="ghost" size="sm">
-                  <Activity className="w-4 h-4 mr-2" />
-                  运动记录
-                </Button>
-              </Link>
-              <Link href="/poster/create">
-                <Button variant="ghost" size="sm">
-                  <Image className="w-4 h-4 mr-2" />
-                  创建海报
-                </Button>
-              </Link>
-              <Link href="/upload">
-                <Button size="sm">
-                  <Upload className="w-4 h-4 mr-2" />
-                  上传表盘
-                </Button>
-              </Link>
-              <Link href="/profile">
-                <Button variant="outline" size="sm">
-                  <User className="w-4 h-4 mr-2" />
-                  个人中心
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <div className="bg-gradient-to-br from-background to-muted">
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">

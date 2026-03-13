@@ -8,6 +8,13 @@
       "when": 1773406284050,
       "tag": "0000_volatile_pride",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773410446152,
+      "tag": "0001_many_puma",
+      "breakpoints": true
     }
   ]
 }
