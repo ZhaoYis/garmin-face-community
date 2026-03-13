@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { UserDropdown } from "./user-dropdown";
+import { ThemeToggle } from "./theme-toggle";
 import { Activity, LogIn } from "lucide-react";
 
 export async function Header() {
@@ -36,7 +37,8 @@ export async function Header() {
           </Link>
         </nav>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <ThemeToggle />
           {session?.user ? (
             <UserDropdown user={session.user} />
           ) : (
