@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Activity, Image } from "lucide-react";
+import { Heart, Activity, Image as ImageIcon } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 export default async function HomePage() {
@@ -27,7 +27,7 @@ export default async function HomePage() {
           </Link>
           <Link href="/poster/create">
             <Button variant="outline" size="lg">
-              <Image className="w-5 h-5 mr-2" />
+              <ImageIcon className="w-5 h-5 mr-2" />
               {t("nav.createPoster")}
             </Button>
           </Link>
@@ -50,7 +50,7 @@ export default async function HomePage() {
 
           <Card className="text-center p-6">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-              <Image className="w-8 h-8 text-primary" />
+              <ImageIcon className="w-8 h-8 text-primary" />
             </div>
             <h3 className="text-xl font-semibold mb-2">{t("home.features.generatePoster")}</h3>
             <p className="text-muted-foreground">
