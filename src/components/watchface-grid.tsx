@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, Download, Eye, Star, ChevronDown } from "lucide-react";
+import { Heart, MessageCircle, Download, Eye, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface WatchFace {
@@ -23,6 +23,142 @@ interface WatchFace {
     image: string | null;
   } | null;
 }
+
+// 静态模拟数据（当数据库无数据时使用）
+const mockWatchFaces: WatchFace[] = [
+  {
+    id: "1",
+    name: "极简商务",
+    description: "简约风格的商务表盘，适合日常办公和正式场合佩戴。设计简洁大方，信息显示清晰易读。",
+    category: "analog",
+    thumbnailUrl: "https://picsum.photos/seed/watch1/400/400",
+    downloads: 1234,
+    likes: 567,
+    createdAt: new Date(),
+    author: { id: "1", name: "设计师小王", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=xiaowang" },
+  },
+  {
+    id: "2",
+    name: "运动数据面板",
+    description: "专为运动爱好者设计的数字表盘，实时显示心率、步数、卡路里等运动数据。",
+    category: "fitness",
+    thumbnailUrl: "https://picsum.photos/seed/watch2/400/400",
+    downloads: 2345,
+    likes: 890,
+    createdAt: new Date(),
+    author: { id: "2", name: "表盘达人", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=daren" },
+  },
+  {
+    id: "3",
+    name: "数字时钟",
+    description: "简洁的数字时钟表盘，大字体显示时间，支持24小时制，夜间模式自动调节亮度。",
+    category: "digital",
+    thumbnailUrl: "https://picsum.photos/seed/watch3/400/400",
+    downloads: 3456,
+    likes: 1234,
+    createdAt: new Date(),
+    author: { id: "3", name: "运动爱好者", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=sports" },
+  },
+  {
+    id: "4",
+    name: "经典指针",
+    description: "经典指针表盘设计，模拟传统手表外观，优雅大气，适合各种场合佩戴。",
+    category: "analog",
+    thumbnailUrl: "https://picsum.photos/seed/watch4/400/400",
+    downloads: 1567,
+    likes: 456,
+    createdAt: new Date(),
+    author: { id: "4", name: "极简主义", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=minimal" },
+  },
+  {
+    id: "5",
+    name: "混合时尚",
+    description: "结合模拟指针和数字显示的混合表盘，既保留传统美感又兼顾现代实用性。",
+    category: "hybrid",
+    thumbnailUrl: "https://picsum.photos/seed/watch5/400/400",
+    downloads: 987,
+    likes: 321,
+    createdAt: new Date(),
+    author: { id: "1", name: "设计师小王", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=xiaowang" },
+  },
+  {
+    id: "6",
+    name: "户外探险",
+    description: "专为户外探险设计的表盘，显示海拔、气压、指南针等户外信息，支持GPS轨迹记录。",
+    category: "fitness",
+    thumbnailUrl: "https://picsum.photos/seed/watch6/400/400",
+    downloads: 765,
+    likes: 234,
+    createdAt: new Date(),
+    author: { id: "2", name: "表盘达人", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=daren" },
+  },
+  {
+    id: "7",
+    name: "极简数字",
+    description: "极简主义数字表盘，只显示最基本的时间信息，界面干净清爽，非常省电。",
+    category: "digital",
+    thumbnailUrl: "https://picsum.photos/seed/watch7/400/400",
+    downloads: 4567,
+    likes: 1567,
+    createdAt: new Date(),
+    author: { id: "3", name: "运动爱好者", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=sports" },
+  },
+  {
+    id: "8",
+    name: "科技感",
+    description: "充满科技感的表盘设计，动态效果炫酷，显示丰富的系统信息，适合科技爱好者。",
+    category: "hybrid",
+    thumbnailUrl: "https://picsum.photos/seed/watch8/400/400",
+    downloads: 678,
+    likes: 189,
+    createdAt: new Date(),
+    author: { id: "4", name: "极简主义", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=minimal" },
+  },
+  {
+    id: "9",
+    name: "复古经典",
+    description: "复古风格的指针表盘，仿古铜色设计，带有岁月沉淀的质感，适合怀旧风格爱好者。",
+    category: "analog",
+    thumbnailUrl: "https://picsum.photos/seed/watch9/400/400",
+    downloads: 543,
+    likes: 167,
+    createdAt: new Date(),
+    author: { id: "1", name: "设计师小王", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=xiaowang" },
+  },
+  {
+    id: "10",
+    name: "健身追踪",
+    description: "健身追踪专用表盘，实时显示运动目标完成度，支持多种健身模式，激励你达成目标。",
+    category: "fitness",
+    thumbnailUrl: "https://picsum.photos/seed/watch10/400/400",
+    downloads: 1890,
+    likes: 567,
+    createdAt: new Date(),
+    author: { id: "2", name: "表盘达人", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=daren" },
+  },
+  {
+    id: "11",
+    name: "夜光数字",
+    description: "夜间模式优化的数字表盘，支持自动亮度调节，清晰易读不刺眼。",
+    category: "digital",
+    thumbnailUrl: "https://picsum.photos/seed/watch11/400/400",
+    downloads: 2341,
+    likes: 789,
+    createdAt: new Date(),
+    author: { id: "3", name: "运动爱好者", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=sports" },
+  },
+  {
+    id: "12",
+    name: "城市脉搏",
+    description: "现代都市风格的混合表盘，结合天气、日程提醒等实用功能，是都市白领的理想选择。",
+    category: "hybrid",
+    thumbnailUrl: "https://picsum.photos/seed/watch12/400/400",
+    downloads: 1122,
+    likes: 345,
+    createdAt: new Date(),
+    author: { id: "4", name: "极简主义", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=minimal" },
+  },
+];
 
 interface WatchFaceGridProps {
   initialData: WatchFace[];
@@ -43,30 +179,9 @@ export default function WatchFaceGrid({
   isAuthenticated,
 }: WatchFaceGridProps) {
   const router = useRouter();
-  const [watchfaces, setWatchfaces] = useState(initialData);
-  const [hasMore, setHasMore] = useState(initialHasMore);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-
-  const loadMore = async () => {
-    if (loading || !hasMore) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/watchfaces?page=${page + 1}`);
-      const data = await res.json();
-
-      if (data.data) {
-        setWatchfaces([...watchfaces, ...data.data]);
-        setHasMore(data.hasMore);
-        setPage(page + 1);
-      }
-    } catch (error) {
-      console.error("Error loading more:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // 如果没有数据库数据，使用模拟数据
+  const [watchfaces] = useState(initialData.length > 0 ? initialData : mockWatchFaces);
+  const [hasMore] = useState(initialData.length > 0 ? initialHasMore : false);
 
   const handleLike = async (e: React.MouseEvent, watchFaceId: string) => {
     e.preventDefault();
@@ -181,17 +296,10 @@ export default function WatchFaceGrid({
           <Button
             variant="outline"
             size="lg"
-            onClick={loadMore}
-            disabled={loading}
+            disabled
           >
-            {loading ? (
-              "加载中..."
-            ) : (
-              <>
-                加载更多
-                <ChevronDown className="w-4 h-4 ml-2" />
-              </>
-            )}
+            加载更多
+            <ChevronDown className="w-4 h-4 ml-2" />
           </Button>
         </div>
       )}
