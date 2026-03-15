@@ -1,14 +1,59 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Activity, Image as ImageIcon } from "lucide-react";
+import { Heart, Activity, Image as ImageIcon, Upload, Eye } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { auth } from "@/auth";
+import { db } from "@/lib/db";
+import { watchFaces, users } from "@/lib/db/schema";
+import { eq, desc, count } from "drizzle-orm";
+import WatchFaceGrid from "@/components/watchface-grid";
+
+// 获取公开表盘数据
+async function getPublicWatchFaces() {
+  const limit = 12;
+
+  const watchfaces = await db
+    .select({
+      id: watchFaces.id,
+      name: watchFaces.name,
+      description: watchFaces.description,
+      category: watchFaces.category,
+      thumbnailUrl: watchFaces.thumbnailUrl,
+      downloads: watchFaces.downloads,
+      likes: watchFaces.likes,
+      createdAt: watchFaces.createdAt,
+      author: {
+        id: users.id,
+        name: users.name,
+        image: users.image,
+      },
+    })
+    .from(watchFaces)
+    .leftJoin(users, eq(watchFaces.userId, users.id))
+    .where(eq(watchFaces.status, "approved"))
+    .orderBy(desc(watchFaces.createdAt))
+    .limit(limit);
+
+  // 获取总数
+  const [totalResult] = await db
+    .select({ count: count() })
+    .from(watchFaces)
+    .where(eq(watchFaces.status, "approved"));
+
+  return {
+    data: watchfaces,
+    hasMore: totalResult.count > limit,
+  };
+}
 
 export default async function HomePage() {
   const t = await getTranslations();
+  const session = await auth();
+  const { data: watchfaces, hasMore } = await getPublicWatchFaces();
 
   return (
-    <div className="bg-gradient-to-br from-background to-muted">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -29,6 +74,12 @@ export default async function HomePage() {
             <Button variant="outline" size="lg">
               <ImageIcon className="w-5 h-5 mr-2" />
               {t("nav.createPoster")}
+            </Button>
+          </Link>
+          <Link href="/upload">
+            <Button variant="outline" size="lg">
+              <Upload className="w-5 h-5 mr-2" />
+              上传表盘
             </Button>
           </Link>
         </div>
@@ -68,6 +119,25 @@ export default async function HomePage() {
             </p>
           </Card>
         </div>
+      </section>
+
+      {/* User Works Section */}
+      <section className="container mx-auto px-4 py-12">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <Eye className="w-6 h-6" />
+            用户作品展示
+          </h2>
+          <Link href="/watchfaces">
+            <Button variant="ghost">查看全部 →</Button>
+          </Link>
+        </div>
+
+        <WatchFaceGrid
+          initialData={watchfaces}
+          initialHasMore={hasMore}
+          isAuthenticated={!!session?.user}
+        />
       </section>
 
       {/* Footer */}

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { watchFaces } from "@/lib/db/schema";
+import { watchFaces, users } from "@/lib/db/schema";
 import { hasPermission, PERMISSIONS } from "@/lib/permissions";
+import { eq, desc, count } from "drizzle-orm";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -73,17 +74,64 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
-  const session = await auth();
-
-  if (!session?.user) {
-    return NextResponse.json({ message: "未授权" }, { status: 401 });
-  }
-
+// GET /api/watchfaces?page=1&limit=12&public=true
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "12");
+    const isPublic = searchParams.get("public") === "true";
+
+    const offset = (page - 1) * limit;
+
+    if (isPublic) {
+      // 公开查询：获取已审核通过的表盘
+      const watchfaces = await db
+        .select({
+          id: watchFaces.id,
+          name: watchFaces.name,
+          description: watchFaces.description,
+          category: watchFaces.category,
+          thumbnailUrl: watchFaces.thumbnailUrl,
+          downloads: watchFaces.downloads,
+          likes: watchFaces.likes,
+          createdAt: watchFaces.createdAt,
+          author: {
+            id: users.id,
+            name: users.name,
+            image: users.image,
+          },
+        })
+        .from(watchFaces)
+        .leftJoin(users, eq(watchFaces.userId, users.id))
+        .where(eq(watchFaces.status, "approved"))
+        .orderBy(desc(watchFaces.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      // 获取总数
+      const [totalResult] = await db
+        .select({ count: count() })
+        .from(watchFaces)
+        .where(eq(watchFaces.status, "approved"));
+
+      return NextResponse.json({
+        data: watchfaces,
+        total: totalResult.count,
+        hasMore: totalResult.count > offset + limit,
+      });
+    }
+
+    // 私有查询：获取用户自己的表盘
+    const session = await auth();
+
+    if (!session?.user) {
+      return NextResponse.json({ message: "未授权" }, { status: 401 });
+    }
+
     const myWatchfaces = await db.query.watchFaces.findMany({
-      where: (wf, { eq }) => eq(wf.userId, session.user.id),
-      orderBy: (wf, { desc }) => [desc(wf.createdAt)],
+      where: eq(watchFaces.userId, session.user.id),
+      orderBy: [desc(watchFaces.createdAt)],
     });
 
     return NextResponse.json(myWatchfaces);
