@@ -26,21 +26,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "缺少必填字段" }, { status: 400 });
     }
 
-    // 文件验证
-    const validExtensions = [".garmin", ".prg"];
-    const fileName = file.name.toLowerCase();
-    const isValid = validExtensions.some((ext) => fileName.endsWith(ext));
-    if (!isValid) {
-      return NextResponse.json({ message: "不支持的文件格式" }, { status: 400 });
+    // 使用通用上传服务
+    const uploadFormData = new FormData();
+    uploadFormData.append("file", file);
+    uploadFormData.append("type", "watchface");
+
+    // 内部调用上传 API
+    const uploadUrl = new URL("/api/upload", process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
+    const uploadResponse = await fetch(uploadUrl, {
+      method: "POST",
+      headers: {
+        Cookie: request.headers.get("cookie") || "",
+      },
+      body: uploadFormData,
+    });
+
+    if (!uploadResponse.ok) {
+      const uploadError = await uploadResponse.json();
+      return NextResponse.json(
+        { message: uploadError.error || "文件上传失败" },
+        { status: uploadResponse.status }
+      );
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ message: "文件大小超过限制" }, { status: 400 });
-    }
-
-    // TODO: 实际文件上传到存储服务
-    // 这里暂时使用占位 URL
-    const fileUrl = `/uploads/watchfaces/${Date.now()}-${file.name}`;
+    const uploadResult = await uploadResponse.json();
+    const fileUrl = uploadResult.url;
 
     // 创建表盘记录
     const [watchface] = await db
