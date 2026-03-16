@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Download, Eye, ChevronDown } from "lucide-react";
+import { Heart, Download, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface WatchFace {
@@ -24,59 +24,13 @@ interface WatchFace {
   } | null;
 }
 
-// 静态模拟数据（作为后备）
-const mockWatchFaces: WatchFace[] = [
-  {
-    id: "1",
-    name: "极简商务",
-    description: "简约风格的商务表盘，适合日常办公和正式场合佩戴。设计简洁大方，信息显示清晰易读。",
-    category: "analog",
-    thumbnailUrl: "https://picsum.photos/seed/watch1/400/400",
-    downloads: 1234,
-    likes: 567,
-    createdAt: new Date(),
-    author: { id: "1", name: "设计师小王", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=xiaowang" },
-  },
-  {
-    id: "2",
-    name: "运动数据面板",
-    description: "专为运动爱好者设计的数字表盘，实时显示心率、步数、卡路里等运动数据。",
-    category: "fitness",
-    thumbnailUrl: "https://picsum.photos/seed/watch2/400/400",
-    downloads: 2345,
-    likes: 890,
-    createdAt: new Date(),
-    author: { id: "2", name: "表盘达人", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=daren" },
-  },
-  {
-    id: "3",
-    name: "数字时钟",
-    description: "简洁的数字时钟表盘，大字体显示时间，支持24小时制。",
-    category: "digital",
-    thumbnailUrl: "https://picsum.photos/seed/watch3/400/400",
-    downloads: 3456,
-    likes: 1234,
-    createdAt: new Date(),
-    author: { id: "3", name: "运动爱好者", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=sports" },
-  },
-  {
-    id: "4",
-    name: "经典指针",
-    description: "经典指针表盘设计，模拟传统手表外观，优雅大气。",
-    category: "analog",
-    thumbnailUrl: "https://picsum.photos/seed/watch4/400/400",
-    downloads: 1567,
-    likes: 456,
-    createdAt: new Date(),
-    author: { id: "4", name: "极简主义", image: "https://api.dicebear.com/7.x/avataaars/svg?seed=minimal" },
-  },
-];
-
-interface WatchFaceGridProps {
-  initialData: WatchFace[];
-  initialHasMore: boolean;
-  isAuthenticated: boolean;
-}
+// 小红书风格配色
+const categoryColors: Record<string, string> = {
+  analog: "bg-amber-100 text-amber-700",
+  digital: "bg-blue-100 text-blue-700",
+  hybrid: "bg-purple-100 text-purple-700",
+  fitness: "bg-green-100 text-green-700",
+};
 
 const categoryNames: Record<string, string> = {
   analog: "模拟",
@@ -85,38 +39,68 @@ const categoryNames: Record<string, string> = {
   fitness: "运动",
 };
 
+// 模拟不同高度的图片（小红书风格）
+const getRandomHeight = (id: string) => {
+  const heights = [280, 320, 360, 400, 440];
+  const hash = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return heights[hash % heights.length];
+};
+
+interface WatchFaceGridProps {
+  initialData: WatchFace[];
+  initialHasMore: boolean;
+  isAuthenticated: boolean;
+}
+
 export default function WatchFaceGrid({
   initialData,
   initialHasMore,
   isAuthenticated,
 }: WatchFaceGridProps) {
   const router = useRouter();
-  const [watchfaces, setWatchfaces] = useState<WatchFace[]>(initialData.length > 0 ? initialData : mockWatchFaces);
+  const [watchfaces, setWatchfaces] = useState<WatchFace[]>(initialData);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const observerRef = useRef<HTMLDivElement>(null);
 
-  // 如果没有初始数据，尝试从 API 获取
-  useEffect(() => {
-    if (initialData.length === 0) {
-      fetchWatchfaces();
-    }
-  }, [initialData.length]);
-
-  const fetchWatchfaces = async () => {
+  // 无限滚动加载
+  const loadMore = useCallback(async () => {
+    if (loading || !hasMore) return;
+    
     setLoading(true);
     try {
-      const res = await fetch("/api/watchfaces?public=true");
+      const res = await fetch(`/api/watchfaces?public=true&page=${page + 1}&limit=12`);
       const data = await res.json();
       if (data.data && data.data.length > 0) {
-        setWatchfaces(data.data);
+        setWatchfaces((prev) => [...prev, ...data.data]);
         setHasMore(data.hasMore);
+        setPage((p) => p + 1);
       }
     } catch (error) {
       console.error("Error fetching watchfaces:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading, hasMore, page]);
+
+  // Intersection Observer 实现无限滚动
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadMore]);
 
   const handleLike = async (e: React.MouseEvent, watchFaceId: string) => {
     e.preventDefault();
@@ -138,122 +122,121 @@ export default function WatchFaceGrid({
     }
   };
 
-  if (loading) {
+  if (watchfaces.length === 0 && !loading) {
     return (
       <div className="text-center py-16">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-        <p className="text-muted-foreground">加载中...</p>
+        <Eye className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+        <h3 className="text-xl font-semibold mb-2">暂无作品</h3>
+        <p className="text-muted-foreground">成为第一个上传表盘的创作者吧！</p>
+        <Link href="/upload">
+          <Button className="mt-4 rounded-full">上传表盘</Button>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Masonry Grid */}
-      <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
-        {watchfaces.map((wf) => (
-          <Link key={wf.id} href={`/watchface/${wf.id}`}>
-            <Card className="break-inside-avoid group cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden">
-              {/* Image */}
-              <div className="relative aspect-square bg-muted">
-                {wf.thumbnailUrl ? (
-                  <img
-                    src={wf.thumbnailUrl}
-                    alt={wf.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Eye className="w-12 h-12 text-muted-foreground" />
-                  </div>
-                )}
+    <div className="space-y-4">
+      {/* 小红书风格瀑布流布局 */}
+      <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-3">
+        {watchfaces.map((wf, index) => {
+          const imageHeight = getRandomHeight(wf.id);
+          
+          return (
+            <Link
+              key={wf.id}
+              href={`/watchface/${wf.id}`}
+              className="block mb-3 break-inside-avoid group"
+            >
+              <Card className="overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-300 rounded-xl bg-white dark:bg-gray-900">
+                {/* 图片区域 */}
+                <div
+                  className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900"
+                  style={{ height: `${imageHeight}px` }}
+                >
+                  {wf.thumbnailUrl ? (
+                    <img
+                      src={wf.thumbnailUrl}
+                      alt={wf.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Eye className="w-12 h-12 text-gray-400" />
+                    </div>
+                  )}
 
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <p className="text-white text-sm line-clamp-2">
-                      {wf.description || "暂无描述"}
-                    </p>
-                  </div>
+                  {/* 渐变遮罩 */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  {/* 分类标签 - 右上角 */}
+                  <Badge
+                    className={`absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded-full border-0 ${
+                      categoryColors[wf.category] || "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {categoryNames[wf.category] || wf.category}
+                  </Badge>
                 </div>
 
-                {/* Category Badge */}
-                <Badge className="absolute top-2 left-2">
-                  {categoryNames[wf.category] || wf.category}
-                </Badge>
-              </div>
+                {/* 内容区域 */}
+                <div className="p-3">
+                  {/* 标题 */}
+                  <h3 className="font-semibold text-sm mb-2 line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+                    {wf.name}
+                  </h3>
 
-              <CardContent className="p-4">
-                {/* Title */}
-                <h3 className="font-semibold text-lg mb-2 line-clamp-1">
-                  {wf.name}
-                </h3>
-
-                {/* Author */}
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-6 h-6 rounded-full bg-muted overflow-hidden">
-                    {wf.author?.image ? (
-                      <img
-                        src={wf.author.image}
-                        alt={wf.author.name || ""}
-                        className="w-6 h-6 object-cover"
-                      />
-                    ) : (
-                      <div className="w-6 h-6 flex items-center justify-center text-xs">
-                        {wf.author?.name?.[0] || "U"}
+                  {/* 作者和互动 */}
+                  <div className="flex items-center justify-between">
+                    {/* 作者头像 */}
+                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                      <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
+                        {wf.author?.image ? (
+                          <img
+                            src={wf.author.image}
+                            alt={wf.author.name || ""}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
+                            {wf.author?.name?.[0] || "U"}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {wf.author?.name || "匿名用户"}
-                  </span>
-                </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {wf.author?.name || "匿名"}
+                      </span>
+                    </div>
 
-                {/* Stats */}
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <div className="flex items-center gap-3">
+                    {/* 点赞数 */}
                     <button
                       onClick={(e) => handleLike(e, wf.id)}
-                      className="flex items-center gap-1 hover:text-red-500 transition-colors"
+                      className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
                     >
-                      <Heart className="w-4 h-4" />
-                      {wf.likes}
+                      <Heart className="w-3.5 h-3.5" />
+                      <span>{wf.likes > 999 ? `${(wf.likes / 1000).toFixed(1)}k` : wf.likes}</span>
                     </button>
-                    <span className="flex items-center gap-1">
-                      <Download className="w-4 h-4" />
-                      {wf.downloads}
-                    </span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+              </Card>
+            </Link>
+          );
+        })}
       </div>
 
-      {/* Load More */}
-      {hasMore && (
-        <div className="text-center py-8">
-          <Button variant="outline" size="lg" disabled={loading}>
-            {loading ? "加载中..." : "加载更多"}
-            {!loading && <ChevronDown className="w-4 h-4 ml-2" />}
-          </Button>
-        </div>
-      )}
-
-      {/* Empty State */}
-      {watchfaces.length === 0 && !loading && (
-        <div className="text-center py-16">
-          <Eye className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-xl font-semibold mb-2">暂无作品</h3>
-          <p className="text-muted-foreground">
-            成为第一个上传表盘的创作者吧！
-          </p>
-          <Link href="/upload">
-            <Button className="mt-4">上传表盘</Button>
-          </Link>
-        </div>
-      )}
+      {/* 加载状态 / 无限滚动触发器 */}
+      <div ref={observerRef} className="py-8">
+        {loading && (
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm text-muted-foreground">加载中...</span>
+          </div>
+        )}
+        {!hasMore && watchfaces.length > 0 && (
+          <p className="text-center text-sm text-muted-foreground">已经到底啦 ~</p>
+        )}
+      </div>
     </div>
   );
 }

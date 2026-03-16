@@ -121,15 +121,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* User Works Section */}
+      {/* User Works Section - 小红书风格 */}
       <section className="container mx-auto px-4 py-12">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Eye className="w-6 h-6" />
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Eye className="w-5 h-5" />
             用户作品展示
           </h2>
-          <Link href="/watchfaces">
-            <Button variant="ghost">查看全部 →</Button>
+          <Link href="/watchfaces" className="text-sm text-primary hover:underline">
+            查看全部 →
           </Link>
         </div>
 
