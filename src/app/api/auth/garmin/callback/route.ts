@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
     const code = searchParams.get("code");
+    const state = searchParams.get("state");
     const error = searchParams.get("error");
 
     // 处理用户拒绝授权
@@ -30,6 +31,14 @@ export async function GET(request: NextRequest) {
     if (!code) {
       return NextResponse.redirect(
         new URL("/profile?error=no_code", request.url)
+      );
+    }
+
+    // P1 修复：验证 state 参数防止 CSRF 攻击
+    const storedState = request.cookies.get("garmin_oauth_state")?.value;
+    if (!state || !storedState || state !== storedState) {
+      return NextResponse.redirect(
+        new URL("/profile?error=invalid_state", request.url)
       );
     }
 
@@ -57,10 +66,13 @@ export async function GET(request: NextRequest) {
       })
       .where(eq(users.id, session.user.id));
 
-    // 重定向到成功页面
-    return NextResponse.redirect(
+    // 创建响应并清除 state cookie
+    const response = NextResponse.redirect(
       new URL("/profile?garmin=connected", request.url)
     );
+    response.cookies.delete("garmin_oauth_state");
+
+    return response;
   } catch (error) {
     console.error("Error in Garmin OAuth callback:", error);
     return NextResponse.redirect(

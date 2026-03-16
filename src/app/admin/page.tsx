@@ -5,6 +5,9 @@ import { db } from "@/lib/db";
 import { users, watchFaces } from "@/lib/db/schema";
 import { count, sql } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 
 async function getStats() {
   const [userCount] = await db.select({ count: count() }).from(users);
@@ -26,6 +29,12 @@ async function getStats() {
 }
 
 export default async function AdminDashboardPage() {
+  // P2 修复：页面级别的额外权限检查
+  const session = await auth();
+  if (!session?.user || !hasPermission(session.user.role, PERMISSIONS.ACCESS_ADMIN)) {
+    redirect("/forbidden");
+  }
+
   const stats = await getStats();
   const t = await getTranslations();
 

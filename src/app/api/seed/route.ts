@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { db } from "@/lib/db";
 import { users, watchFaces } from "@/lib/db/schema";
 import { randomUUID } from "crypto";
@@ -196,6 +198,23 @@ const getTestWatchFaces = (userIds: string[]) => [
 ];
 
 export async function POST() {
+  // P0 修复：添加管理员权限验证
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!hasPermission(session.user.role, PERMISSIONS.ACCESS_ADMIN)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // 生产环境禁用此接口
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { error: "This endpoint is disabled in production" },
+      { status: 403 }
+    );
+  }
+
   try {
     console.log("🌱 开始插入测试数据...");
 

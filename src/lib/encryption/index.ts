@@ -10,12 +10,22 @@ const SALT_LENGTH = 64;
 /**
  * 从环境变量获取加密密钥
  * 密钥应该是 32 字节的十六进制字符串（64 个字符）
+ * P3 修复：添加密钥长度验证
  */
 function getEncryptionKey(): Buffer {
   const key = process.env.ENCRYPTION_KEY;
   if (!key) {
     throw new Error("ENCRYPTION_KEY environment variable is not set");
   }
+  
+  // 验证密钥长度：必须是 64 个字符的十六进制字符串（32 字节）
+  if (key.length !== 64 || !/^[0-9a-fA-F]{64}$/.test(key)) {
+    throw new Error(
+      "ENCRYPTION_KEY must be a 64-character hexadecimal string (32 bytes). " +
+      "Generate one with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\""
+    );
+  }
+  
   return Buffer.from(key, "hex");
 }
 

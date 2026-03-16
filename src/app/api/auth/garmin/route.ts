@@ -29,12 +29,21 @@ export async function GET() {
     // 生成授权 URL
     const authUrl = generateGarminAuthUrl(state);
 
-    // 在实际生产环境中，state 应该存储在 session 或 cookie 中
-    // 这里简化处理，返回 state 供前端验证
-    return NextResponse.json({
+    // P1 修复：将 state 存储到 httpOnly cookie 中
+    const response = NextResponse.json({
       authUrl,
-      state,
     });
+
+    // 设置 state cookie，有效期 10 分钟
+    response.cookies.set("garmin_oauth_state", state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 600, // 10 分钟
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Error generating Garmin auth URL:", error);
     return NextResponse.json(

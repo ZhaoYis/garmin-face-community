@@ -12,8 +12,17 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { getTranslations } from "next-intl/server";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 
 export default async function AdminTemplatesPage() {
+  // P2 修复：页面级别的额外权限检查
+  const session = await auth();
+  if (!session?.user || !hasPermission(session.user.role, PERMISSIONS.MANAGE_TEMPLATES)) {
+    redirect("/forbidden");
+  }
+
   const t = await getTranslations();
   const templates = await db.select().from(posterTemplates).orderBy(desc(posterTemplates.sortOrder));
 
