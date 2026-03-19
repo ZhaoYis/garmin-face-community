@@ -1,6 +1,4 @@
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { db } from "@/lib/db";
 import { watchFaces } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
@@ -22,14 +20,11 @@ export default async function MyWatchfacesPage() {
   const session = await auth();
   const t = await getTranslations();
 
-  if (!session?.user || !hasPermission(session.user.role, PERMISSIONS.UPLOAD_WATCHFACE)) {
-    redirect("/forbidden");
-  }
-
+  // Auth and permission checks are done in layout
   const myWatchfaces = await db
     .select()
     .from(watchFaces)
-    .where(eq(watchFaces.userId, session.user.id))
+    .where(eq(watchFaces.userId, session!.user!.id))
     .orderBy(desc(watchFaces.createdAt));
 
   const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {

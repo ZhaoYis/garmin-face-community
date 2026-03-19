@@ -1,5 +1,4 @@
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import { db, users } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
@@ -15,16 +14,18 @@ export default async function ProfilePage() {
   const session = await auth();
   const t = await getTranslations();
 
-  if (!session?.user?.id) {
-    redirect("/auth/signin");
-  }
-
+  // Auth check is done in layout, but we still need the session for user ID
   const user = await db.query.users.findFirst({
-    where: eq(users.id, session.user.id),
+    where: eq(users.id, session!.user!.id),
   });
 
   if (!user) {
-    redirect("/auth/signin");
+    // This shouldn't happen, but handle gracefully
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>User not found</p>
+      </div>
+    );
   }
 
   const isGarminConnected = !!user.garminUserId && !!user.garminAccessToken;
