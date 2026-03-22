@@ -22,32 +22,61 @@ declare module "next-auth" {
   }
 }
 
+// 检查必要的环境变量
+function checkRequiredEnvVars() {
+  const missing: string[] = [];
+
+  if (!process.env.AUTH_SECRET) {
+    missing.push("AUTH_SECRET");
+  }
+  if (!process.env.POSTGRES_URL) {
+    missing.push("POSTGRES_URL");
+  }
+
+  return missing;
+}
+
+const missingEnvVars = checkRequiredEnvVars();
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: DrizzleAdapter(db),
   trustHost: true,
   providers: [
     Google({
-      clientId: process.env.AUTH_GOOGLE_ID!,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+      clientId: process.env.AUTH_GOOGLE_ID || "",
+      clientSecret: process.env.AUTH_GOOGLE_SECRET || "",
+      allowDangerousEmailAccountLinking: true,
     }),
     GitHub({
-      clientId: process.env.AUTH_GITHUB_ID!,
-      clientSecret: process.env.AUTH_GITHUB_SECRET!,
+      clientId: process.env.AUTH_GITHUB_ID || "",
+      clientSecret: process.env.AUTH_GITHUB_SECRET || "",
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   callbacks: {
-    async signIn({ user }) {
-      // 检查是否为超级管理员
-      if (isAdminEmail(user.email)) {
-        // 超级管理员自动更新角色为 admin
-        if (user.id) {
-          await db
-            .update(users)
-            .set({ role: "admin" })
-            .where(eq(users.id, user.id));
-        }
+    async signIn({ user, account, profile }) {
+      // 检查环境变量是否配置
+      if (missingEnvVars.length > 0) {
+        console.error("Missing required environment variables:", missingEnvVars);
+        return false;
       }
-      return true;
+
+      try {
+        // 检查是否为超级管理员
+        if (isAdminEmail(user.email)) {
+          // 超级管理员自动更新角色为 admin
+          if (user.id) {
+            await db
+              .update(users)
+              .set({ role: "admin" })
+              .where(eq(users.id, user.id));
+          }
+        }
+        return true;
+      } catch (error) {
+        console.error("SignIn callback error:", error);
+        return false;
+      }
     },
     async session({ session, user }) {
       if (session.user && user) {
@@ -80,5 +109,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: "/auth/signin",
     error: "/auth/error",
+  },
+  debug: process.env.NODE_ENV === "development",
+  logger: {
+    error(code, ...message) {
+      console.error("NextAuth Error:", code, ...message);
+    },
+    warn(code, ...message) {
+      console.warn("NextAuth Warning:", code, ...message);
+    },
+    debug(code, ...message) {
+      if (process.env.NODE_ENV === "development") {
+        console.debug("NextAuth Debug:", code, ...message);
+      }
+    },
   },
 });
