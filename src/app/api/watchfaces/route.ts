@@ -1,21 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { watchFaces, users } from "@/lib/db/schema";
-import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { eq, desc, count } from "drizzle-orm";
 
+const MOCK_USER_ID = "anonymous";
+
 export async function POST(request: NextRequest) {
-  const session = await auth();
-
-  if (!session?.user) {
-    return NextResponse.json({ message: "未授权" }, { status: 401 });
-  }
-
-  if (!hasPermission(session.user.role, PERMISSIONS.UPLOAD_WATCHFACE)) {
-    return NextResponse.json({ message: "无权限" }, { status: 403 });
-  }
-
   try {
     const formData = await request.formData();
     const name = formData.get("name") as string;
@@ -36,9 +26,6 @@ export async function POST(request: NextRequest) {
     const uploadUrl = new URL("/api/upload", process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
     const uploadResponse = await fetch(uploadUrl, {
       method: "POST",
-      headers: {
-        Cookie: request.headers.get("cookie") || "",
-      },
       body: uploadFormData,
     });
 
@@ -57,7 +44,7 @@ export async function POST(request: NextRequest) {
     const [watchface] = await db
       .insert(watchFaces)
       .values({
-        userId: session.user.id,
+        userId: MOCK_USER_ID,
         name,
         description,
         category,
@@ -123,14 +110,8 @@ export async function GET(request: NextRequest) {
     }
 
     // 私有查询：获取用户自己的表盘
-    const session = await auth();
-
-    if (!session?.user) {
-      return NextResponse.json({ message: "未授权" }, { status: 401 });
-    }
-
     const myWatchfaces = await db.query.watchFaces.findMany({
-      where: eq(watchFaces.userId, session.user.id),
+      where: eq(watchFaces.userId, MOCK_USER_ID),
       orderBy: [desc(watchFaces.createdAt)],
     });
 

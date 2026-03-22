@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Heart, Activity, Image as ImageIcon, Upload, Eye } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { watchFaces, users } from "@/lib/db/schema";
 import { eq, desc, count } from "drizzle-orm";
@@ -49,7 +48,6 @@ async function getPublicWatchFaces() {
 
 export default async function HomePage() {
   const t = await getTranslations();
-  const session = await auth();
   const { data: watchfaces, hasMore } = await getPublicWatchFaces();
 
   return (
@@ -136,7 +134,7 @@ export default async function HomePage() {
         <WatchFaceGrid
           initialData={watchfaces}
           initialHasMore={hasMore}
-          isAuthenticated={!!session?.user}
+          isAuthenticated={false}
         />
       </section>
 

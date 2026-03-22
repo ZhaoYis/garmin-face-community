@@ -1,7 +1,6 @@
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { watchFaces } from "@/lib/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc } from "drizzle-orm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,15 +16,10 @@ import { Button } from "@/components/ui/button";
 import { getTranslations } from "next-intl/server";
 
 export default async function MyWatchfacesPage() {
-  const session = await auth();
   const t = await getTranslations();
 
-  // Auth and permission checks are done in layout
-  const myWatchfaces = await db
-    .select()
-    .from(watchFaces)
-    .where(eq(watchFaces.userId, session!.user!.id))
-    .orderBy(desc(watchFaces.createdAt));
+  // 匿名用户：显示空列表
+  const myWatchfaces: typeof watchFaces.$inferSelect[] = [];
 
   const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
