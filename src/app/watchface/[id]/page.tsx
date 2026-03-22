@@ -7,7 +7,6 @@ import { ArrowLeft, MessageCircle } from "lucide-react";
 import { db } from "@/lib/db";
 import { watchFaces, users, comments, likes, favorites } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
-import { auth } from "@/auth";
 import CommentSection from "./comment-section";
 import ActionButtons from "./action-buttons";
 import AuthorCard from "./author-card";
@@ -59,28 +58,13 @@ async function getComments(watchFaceId: string) {
     .limit(20);
 }
 
-// 检查用户是否点赞/收藏
+// 检查用户是否点赞/收藏 (匿名用户始终返回未点赞/未收藏)
 async function getUserActions(watchFaceId: string, userId: string | undefined) {
-  if (!userId) return { liked: false, favorited: false };
-
-  const [likeRecord, favoriteRecord] = await Promise.all([
-    db.query.likes.findFirst({
-      where: eq(likes.watchFaceId, watchFaceId) && eq(likes.userId, userId),
-    }),
-    db.query.favorites.findFirst({
-      where: eq(favorites.watchFaceId, watchFaceId) && eq(favorites.userId, userId),
-    }),
-  ]);
-
-  return {
-    liked: !!likeRecord,
-    favorited: !!favoriteRecord,
-  };
+  return { liked: false, favorited: false };
 }
 
 export default async function WatchFaceDetailPage({ params }: Props) {
   const { id } = await params;
-  const session = await auth();
   const [watchface, commentList] = await Promise.all([
     getWatchFace(id),
     getComments(id),
@@ -90,7 +74,7 @@ export default async function WatchFaceDetailPage({ params }: Props) {
     notFound();
   }
 
-  const userActions = await getUserActions(id, session?.user?.id);
+  const userActions = { liked: false, favorited: false };
 
   // 分类显示名称
   const categoryNames: Record<string, string> = {
@@ -153,7 +137,7 @@ export default async function WatchFaceDetailPage({ params }: Props) {
                   likes={watchface.likes}
                   downloads={watchface.downloads}
                   fileUrl={watchface.fileUrl}
-                  isAuthenticated={!!session?.user}
+                  isAuthenticated={false}
                 />
               </CardContent>
             </Card>
@@ -203,8 +187,8 @@ export default async function WatchFaceDetailPage({ params }: Props) {
             {watchface.author && (
               <AuthorCard
                 author={watchface.author}
-                currentUserId={session?.user?.id}
-                isAuthenticated={!!session?.user}
+                currentUserId={undefined}
+                isAuthenticated={false}
               />
             )}
           </div>
@@ -223,7 +207,7 @@ export default async function WatchFaceDetailPage({ params }: Props) {
               <CommentSection
                 watchFaceId={id}
                 comments={commentList}
-                isAuthenticated={!!session?.user}
+                isAuthenticated={false}
               />
             </CardContent>
           </Card>

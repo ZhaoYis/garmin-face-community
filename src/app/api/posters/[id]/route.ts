@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { posters } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
+
+const MOCK_USER_ID = "anonymous";
 
 // GET /api/posters/:id - 获取海报详情
 export async function GET(
@@ -10,15 +11,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
 
     const poster = await db.query.posters.findFirst({
-      where: and(eq(posters.id, id), eq(posters.userId, session.user.id)),
+      where: and(eq(posters.id, id), eq(posters.userId, MOCK_USER_ID)),
       with: {
         activity: true,
         template: true,
@@ -51,16 +47,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
 
     // 验证所有权
     const poster = await db.query.posters.findFirst({
-      where: and(eq(posters.id, id), eq(posters.userId, session.user.id)),
+      where: and(eq(posters.id, id), eq(posters.userId, MOCK_USER_ID)),
     });
 
     if (!poster) {
@@ -86,17 +77,12 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
     const body = await request.json();
 
     // 验证所有权
     const poster = await db.query.posters.findFirst({
-      where: and(eq(posters.id, id), eq(posters.userId, session.user.id)),
+      where: and(eq(posters.id, id), eq(posters.userId, MOCK_USER_ID)),
     });
 
     if (!poster) {

@@ -12,17 +12,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { getTranslations } from "next-intl/server";
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 
 export default async function AdminWatchfacesPage() {
-  // P2 修复：页面级别的额外权限检查
-  const session = await auth();
-  if (!session?.user || !hasPermission(session.user.role, PERMISSIONS.REVIEW_WATCHFACES)) {
-    redirect("/forbidden");
-  }
-
   const t = await getTranslations();
   const watchfacesList = await db
     .select({

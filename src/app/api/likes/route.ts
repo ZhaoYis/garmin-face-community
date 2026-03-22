@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { likes, watchFaces } from "@/lib/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 
+const MOCK_USER_ID = "anonymous";
+
 // POST /api/likes - 点赞
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "未授权" }, { status: 401 });
-    }
-
     const body = await request.json();
     const { watchFaceId } = body;
 
@@ -31,7 +27,7 @@ export async function POST(request: NextRequest) {
     // 检查是否已点赞
     const existingLike = await db.query.likes.findFirst({
       where: and(
-        eq(likes.userId, session.user.id),
+        eq(likes.userId, MOCK_USER_ID),
         eq(likes.watchFaceId, watchFaceId)
       ),
     });
@@ -42,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     // 添加点赞
     await db.insert(likes).values({
-      userId: session.user.id,
+      userId: MOCK_USER_ID,
       watchFaceId,
     });
 
@@ -64,11 +60,6 @@ export async function POST(request: NextRequest) {
 // DELETE /api/likes - 取消点赞
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "未授权" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const watchFaceId = searchParams.get("watchFaceId");
 
@@ -79,7 +70,7 @@ export async function DELETE(request: NextRequest) {
     // 检查是否已点赞
     const existingLike = await db.query.likes.findFirst({
       where: and(
-        eq(likes.userId, session.user.id),
+        eq(likes.userId, MOCK_USER_ID),
         eq(likes.watchFaceId, watchFaceId)
       ),
     });
@@ -93,7 +84,7 @@ export async function DELETE(request: NextRequest) {
       .delete(likes)
       .where(
         and(
-          eq(likes.userId, session.user.id),
+          eq(likes.userId, MOCK_USER_ID),
           eq(likes.watchFaceId, watchFaceId)
         )
       );
@@ -116,11 +107,6 @@ export async function DELETE(request: NextRequest) {
 // GET /api/likes?watchFaceId=xxx - 检查点赞状态
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ liked: false });
-    }
-
     const { searchParams } = new URL(request.url);
     const watchFaceId = searchParams.get("watchFaceId");
 
@@ -130,7 +116,7 @@ export async function GET(request: NextRequest) {
 
     const like = await db.query.likes.findFirst({
       where: and(
-        eq(likes.userId, session.user.id),
+        eq(likes.userId, MOCK_USER_ID),
         eq(likes.watchFaceId, watchFaceId)
       ),
     });

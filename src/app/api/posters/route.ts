@@ -1,23 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { posters } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 
+const MOCK_USER_ID = "anonymous";
+
 // GET /api/posters - 获取我的海报列表
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const searchParams = request.nextUrl.searchParams;
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
     const userPosters = await db.query.posters.findMany({
-      where: eq(posters.userId, session.user.id),
+      where: eq(posters.userId, MOCK_USER_ID),
       limit,
       offset: (page - 1) * limit,
       orderBy: [desc(posters.createdAt)],

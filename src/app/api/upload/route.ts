@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 
 // 支持的文件类型（扩展名 + MIME 类型）
 const ALLOWED_TYPES: Record<string, { extensions: string[]; mimes: string[] }> = {
@@ -28,11 +26,6 @@ const SIZE_LIMITS: Record<string, number> = {
 // POST /api/upload - 通用文件上传
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "未授权" }, { status: 401 });
-    }
-
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const type = (formData.get("type") as string) || "image"; // watchface | image | poster
@@ -66,11 +59,6 @@ export async function POST(request: NextRequest) {
         { error: `文件大小超过限制 (${sizeLimit / 1024 / 1024}MB)` },
         { status: 400 }
       );
-    }
-
-    // 权限检查
-    if (type === "watchface" && !hasPermission(session.user.role, PERMISSIONS.UPLOAD_WATCHFACE)) {
-      return NextResponse.json({ error: "无权限上传表盘" }, { status: 403 });
     }
 
     // 生成文件名

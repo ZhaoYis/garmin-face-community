@@ -1,7 +1,4 @@
 import Link from "next/link";
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-import { hasPermission, PERMISSIONS } from "@/lib/permissions";
 import { Users, LayoutTemplate, FileCheck, Settings } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
@@ -10,12 +7,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
   const t = await getTranslations();
-
-  if (!session?.user || !hasPermission(session.user.role, PERMISSIONS.ACCESS_ADMIN)) {
-    redirect("/forbidden");
-  }
 
   const adminNavItems = [
     { href: "/admin", label: t("admin.overview"), icon: Settings },

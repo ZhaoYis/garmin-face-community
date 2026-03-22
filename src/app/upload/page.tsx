@@ -1,5 +1,3 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,12 +6,7 @@ import { Upload } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 export default async function UploadPage() {
-  const session = await auth();
   const t = await getTranslations();
-
-  if (!session?.user?.id) {
-    redirect("/auth/signin");
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted py-12">
