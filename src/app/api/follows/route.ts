@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { follows, users } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 
+const MOCK_USER_ID = "anonymous";
+
 // POST /api/follows - 关注用户
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "未授权" }, { status: 401 });
-    }
-
     const body = await request.json();
     const { followingId } = body;
 
@@ -20,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 不能关注自己
-    if (followingId === session.user.id) {
+    if (followingId === MOCK_USER_ID) {
       return NextResponse.json({ error: "不能关注自己" }, { status: 400 });
     }
 
@@ -36,7 +32,7 @@ export async function POST(request: NextRequest) {
     // 检查是否已关注
     const existingFollow = await db.query.follows.findFirst({
       where: and(
-        eq(follows.followerId, session.user.id),
+        eq(follows.followerId, MOCK_USER_ID),
         eq(follows.followingId, followingId)
       ),
     });
@@ -49,7 +45,7 @@ export async function POST(request: NextRequest) {
     const [follow] = await db
       .insert(follows)
       .values({
-        followerId: session.user.id,
+        followerId: MOCK_USER_ID,
         followingId,
       })
       .returning();
@@ -64,11 +60,6 @@ export async function POST(request: NextRequest) {
 // DELETE /api/follows - 取消关注
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "未授权" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const followingId = searchParams.get("followingId");
 
@@ -81,7 +72,7 @@ export async function DELETE(request: NextRequest) {
       .delete(follows)
       .where(
         and(
-          eq(follows.followerId, session.user.id),
+          eq(follows.followerId, MOCK_USER_ID),
           eq(follows.followingId, followingId)
         )
       );

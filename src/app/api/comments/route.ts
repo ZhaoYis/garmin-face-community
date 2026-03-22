@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { comments, watchFaces, users } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
+
+const MOCK_USER_ID = "anonymous";
 
 // 创建评论验证
 const createCommentSchema = z.object({
@@ -15,11 +16,6 @@ const createCommentSchema = z.object({
 // POST /api/comments - 创建评论
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "未授权" }, { status: 401 });
-    }
-
     const body = await request.json();
     const validated = createCommentSchema.parse(body);
 
@@ -35,7 +31,7 @@ export async function POST(request: NextRequest) {
     // 检查是否已评论
     const existingComment = await db.query.comments.findFirst({
       where: and(
-        eq(comments.userId, session.user.id),
+        eq(comments.userId, MOCK_USER_ID),
         eq(comments.watchFaceId, validated.watchFaceId)
       ),
     });
@@ -48,7 +44,7 @@ export async function POST(request: NextRequest) {
     const [comment] = await db
       .insert(comments)
       .values({
-        userId: session.user.id,
+        userId: MOCK_USER_ID,
         watchFaceId: validated.watchFaceId,
         content: validated.content,
         rating: validated.rating,

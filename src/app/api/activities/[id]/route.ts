@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { activities } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
+
+const MOCK_USER_ID = "anonymous";
 
 // GET /api/activities/:id - 获取运动记录详情
 export async function GET(
@@ -10,17 +11,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
 
     const activity = await db.query.activities.findFirst({
       where: and(
         eq(activities.id, id),
-        eq(activities.userId, session.user.id)
+        eq(activities.userId, MOCK_USER_ID)
       ),
     });
 
@@ -44,18 +40,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id } = await params;
 
     // 验证所有权
     const activity = await db.query.activities.findFirst({
       where: and(
         eq(activities.id, id),
-        eq(activities.userId, session.user.id)
+        eq(activities.userId, MOCK_USER_ID)
       ),
     });
 

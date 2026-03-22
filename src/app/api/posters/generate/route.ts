@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { posters, activities, posterTemplates } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { hasPermission, PERMISSIONS } from "@/lib/permissions";
+
+const MOCK_USER_ID = "anonymous";
 
 // 请求体验证
 const generatePosterSchema = z.object({
@@ -23,15 +23,6 @@ const generatePosterSchema = z.object({
 // POST /api/posters/generate - 生成海报
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    if (!hasPermission(session.user.role, PERMISSIONS.GENERATE_POSTER)) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
     const body = await request.json();
     const validated = generatePosterSchema.parse(body);
 
@@ -40,7 +31,7 @@ export async function POST(request: NextRequest) {
       where: eq(activities.id, validated.activityId),
     });
 
-    if (!activity || activity.userId !== session.user.id) {
+    if (!activity || activity.userId !== MOCK_USER_ID) {
       return NextResponse.json(
         { error: "Activity not found" },
         { status: 404 }
@@ -64,7 +55,7 @@ export async function POST(request: NextRequest) {
     const poster = await db
       .insert(posters)
       .values({
-        userId: session.user.id,
+        userId: MOCK_USER_ID,
         activityId: validated.activityId,
         templateId: validated.templateId,
         title: validated.title || activity.name,

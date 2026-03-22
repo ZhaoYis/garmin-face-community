@@ -1,34 +1,31 @@
-import { auth } from "@/auth";
-import { db, users } from "@/lib/db";
-import { eq } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Settings, Activity, ImageIcon, Watch } from "lucide-react";
-import { GarminBindButton } from "@/components/garmin-bind-button";
 import { getTranslations } from "next-intl/server";
 
+// 匿名用户数据
+const anonymousUser = {
+  id: "anonymous",
+  name: null,
+  email: "visitor@example.com",
+  image: null,
+  bio: null,
+  role: "guest",
+  status: "active",
+  garminUserId: null,
+  garminAccessToken: null,
+};
+
 export default async function ProfilePage() {
-  const session = await auth();
   const t = await getTranslations();
 
-  // Auth check is done in layout, but we still need the session for user ID
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, session!.user!.id),
-  });
+  // 匿名用户模式
+  const user = anonymousUser;
 
-  if (!user) {
-    // This shouldn't happen, but handle gracefully
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>User not found</p>
-      </div>
-    );
-  }
-
-  const isGarminConnected = !!user.garminUserId && !!user.garminAccessToken;
+  const isGarminConnected = false;
 
   const getRoleLabel = (role: string) => {
     const key = `admin.roles.${role}` as const;
@@ -106,12 +103,7 @@ export default async function ProfilePage() {
                       : t("profile.garminNotConnectedDesc")}
                   </p>
                 </div>
-                <GarminBindButton
-                  isConnected={isGarminConnected}
-                  onDisconnect={() => {
-                    window.location.reload();
-                  }}
-                />
+                <Badge variant="outline">未连接</Badge>
               </div>
             </div>
           </CardContent>

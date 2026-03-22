@@ -1,66 +1,14 @@
-import { pgTable, text, timestamp, uuid, boolean, integer, json, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, boolean, integer, json } from "drizzle-orm/pg-core";
 
-// 用户角色类型定义
-export type UserRole = "guest" | "user" | "creator" | "admin";
-
-// NextAuth.js required tables
-export const accounts = pgTable(
-  "account",
-  {
-    userId: text("userId")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    type: text("type").$type<"oauth" | "email" | "credentials">().notNull(),
-    provider: text("provider").notNull(),
-    providerAccountId: text("providerAccountId").notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    token_type: text("token_type"),
-    scope: text("scope"),
-    id_token: text("id_token"),
-    session_state: text("session_state"),
-  },
-  (account) => ({
-    compoundKey: primaryKey({ columns: [account.provider, account.providerAccountId] }),
-  })
-);
-
-export const sessions = pgTable("session", {
-  sessionToken: text("sessionToken").primaryKey(),
-  userId: text("userId")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  expires: timestamp("expires", { mode: "date" }).notNull(),
-});
-
-export const verificationTokens = pgTable(
-  "verificationToken",
-  {
-    identifier: text("identifier").notNull(),
-    token: text("token").notNull(),
-    expires: timestamp("expires", { mode: "date" }).notNull(),
-  },
-  (vt) => ({
-    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
-);
-
-// Users table
+// Users table (simplified, no auth)
 export const users = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name"),
-  email: text("email").notNull().unique(),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  email: text("email").unique(),
   image: text("image"),
   bio: text("bio"),
-  role: text("role").$type<UserRole>().default("user").notNull(), // 'guest' | 'user' | 'creator' | 'admin'
-  status: text("status").default("active").notNull(), // 'active' | 'disabled'
-  // Garmin 绑定信息
-  garminUserId: text("garmin_user_id"),
-  garminAccessToken: text("garmin_access_token"), // 加密存储
-  garminRefreshToken: text("garmin_refresh_token"), // 加密存储
-  garminTokenExpireAt: timestamp("garmin_token_expire_at", { mode: "date" }),
+  role: text("role").default("guest").notNull(),
+  status: text("status").default("active").notNull(),
   createdAt: timestamp("createdAt", { mode: "date" }).defaultNow(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).defaultNow(),
 });
@@ -80,7 +28,7 @@ export const watchFaces = pgTable("watch_face", {
   fileSize: integer("file_size"), // in bytes
   downloads: integer("downloads").default(0).notNull(),
   likes: integer("likes").default(0).notNull(),
-  status: text("status").default("pending").notNull(), // 'pending' | 'approved' | 'rejected'
+  status: text("status").default("approved").notNull(), // 'pending' | 'approved' | 'rejected'
   featured: boolean("featured").default(false).notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
