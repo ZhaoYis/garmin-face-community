@@ -17,6 +17,12 @@ export async function Header() {
 
         <nav className="flex flex-1 items-center space-x-6 text-sm font-medium">
           <Link
+            href="/watchfaces"
+            className="transition-colors hover:text-foreground/80 text-foreground/60"
+          >
+            {t("watchfaces.title")}
+          </Link>
+          <Link
             href="/activities"
             className="transition-colors hover:text-foreground/80 text-foreground/60"
           >
@@ -33,6 +39,18 @@ export async function Header() {
             className="transition-colors hover:text-foreground/80 text-foreground/60"
           >
             {t("nav.myPosters")}
+          </Link>
+          <Link
+            href="/upload"
+            className="transition-colors hover:text-foreground/80 text-foreground/60"
+          >
+            {t("upload.title")}
+          </Link>
+          <Link
+            href="/profile"
+            className="transition-colors hover:text-foreground/80 text-foreground/60"
+          >
+            {t("nav.profile")}
           </Link>
         </nav>
 

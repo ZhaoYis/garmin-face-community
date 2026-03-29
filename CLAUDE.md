@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Garmin Face Community is a Next.js 15 application for Garmin watch face sharing and sports achievement poster generation. It features user authentication, Garmin OAuth integration for syncing activity data, poster generation with customizable templates, and a watch face community with likes, comments, and favorites.
+Garmin Face Community is a Next.js 15 application for Garmin watch face sharing and sports achievement poster generation. It features Garmin OAuth integration for syncing activity data, poster generation with customizable templates, and a watch face community with likes, comments, and favorites. Authentication has been removed — the app operates in anonymous mode with a hardcoded `MOCK_USER_ID = "anonymous"` for all user-related operations.
 
 ## Common Commands
 
@@ -34,7 +34,6 @@ npm run db:studio        # Open Drizzle Studio GUI
 - **Styling**: Tailwind CSS 4
 - **UI Components**: shadcn/ui (Radix UI based)
 - **Database**: PostgreSQL with Drizzle ORM
-- **Auth**: NextAuth.js v5 (Auth.js)
 - **State Management**: Zustand
 - **Forms**: React Hook Form + Zod
 - **i18n**: next-intl (Chinese default, English supported)
@@ -45,8 +44,7 @@ npm run db:studio        # Open Drizzle Studio GUI
 src/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API routes (RESTful endpoints)
-│   ├── auth/signin/       # Custom signin page
-│   ├── admin/             # Admin dashboard (role-protected)
+│   ├── admin/             # Admin dashboard
 │   ├── activities/        # Garmin activity display
 │   ├── poster/            # Poster generation pages
 │   ├── profile/           # User profile
@@ -62,36 +60,17 @@ src/
 ├── i18n/                  # Internationalization config & messages
 │   ├── messages/zh-CN.json
 │   └── messages/en.json
-├── auth.ts                # NextAuth.js configuration
-└── middleware.ts          # Route protection (lightweight, non-blocking)
+└── middleware.ts          # Lightweight middleware (locale, headers)
 ```
 
-### Authentication System
+### Anonymous Mode
 
-**NextAuth.js v5** with the following providers:
-- Google OAuth
-- GitHub OAuth
-
-**Key files:**
-- `src/auth.ts` - Main auth configuration, providers, callbacks
-- `src/app/api/auth/[...nextauth]/route.ts` - API route handlers
-- `src/middleware.ts` - Route matching only (auth handled at page level)
-
-**Role-based access control:**
-Roles are defined in `src/lib/db/schema.ts`: `guest` | `user` | `creator` | `admin`
-
-Permissions are defined in `src/lib/permissions.ts`. Check permissions using:
+Authentication has been fully removed. All API routes use a hardcoded mock user:
 ```typescript
-import { hasPermission, PERMISSIONS } from "@/lib/permissions";
-import { auth } from "@/auth";
-
-const session = await auth();
-if (hasPermission(session?.user?.role, PERMISSIONS.GENERATE_POSTER)) {
-  // allow action
-}
+const MOCK_USER_ID = "anonymous";
 ```
 
-**Admin configuration:** Set `ADMIN_EMAILS` env variable with comma-separated admin emails. Admins get auto-promoted on login.
+All pages pass `isAuthenticated={false}` to client components. Social features (likes, comments, favorites, follows) still work but are attributed to the anonymous user. The database schema retains `users` table and role fields but they are not enforced.
 
 ### Database Schema
 
@@ -146,45 +125,14 @@ import { getTranslations } from 'next-intl/server';
 const t = await getTranslations('namespace');
 ```
 
-### Protected Routes Pattern
-
-Auth is handled at the page level (not middleware). Example pattern:
-
-```typescript
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-
-export default async function ProtectedPage() {
-  const session = await auth();
-  if (!session) redirect("/auth/signin");
-  // ...
-}
-```
-
-For layout-level protection (admin pages):
-```typescript
-// app/admin/layout.tsx
-import { hasPermission, PERMISSIONS } from "@/lib/permissions";
-
-if (!hasPermission(session?.user?.role, PERMISSIONS.ACCESS_ADMIN)) {
-  redirect("/forbidden");
-}
-```
-
 ### Environment Variables
 
 Required in `.env`:
 ```
 POSTGRES_URL              # PostgreSQL connection string
-AUTH_SECRET               # NextAuth.js secret
-AUTH_GOOGLE_ID            # Google OAuth client ID
-AUTH_GOOGLE_SECRET        # Google OAuth client secret
-AUTH_GITHUB_ID            # GitHub OAuth client ID
-AUTH_GITHUB_SECRET        # GitHub OAuth client secret
 ENCRYPTION_KEY            # 32-byte hex string for token encryption
 GARMIN_CLIENT_ID          # Garmin API key
 GARMIN_CLIENT_SECRET      # Garmin API secret
-ADMIN_EMAILS              # Comma-separated admin emails
 ```
 
 Optional:

@@ -5,8 +5,8 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Download, Eye } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Heart, Eye } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface WatchFace {
   id: string;
@@ -32,13 +32,6 @@ const categoryColors: Record<string, string> = {
   fitness: "bg-green-100 text-green-700",
 };
 
-const categoryNames: Record<string, string> = {
-  analog: "模拟",
-  digital: "数字",
-  hybrid: "混合",
-  fitness: "运动",
-};
-
 // 模拟不同高度的图片（小红书风格）
 const getRandomHeight = (id: string) => {
   const heights = [280, 320, 360, 400, 440];
@@ -57,7 +50,7 @@ export default function WatchFaceGrid({
   initialHasMore,
   isAuthenticated,
 }: WatchFaceGridProps) {
-  const router = useRouter();
+  const t = useTranslations();
   const [watchfaces, setWatchfaces] = useState<WatchFace[]>(initialData);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
@@ -106,17 +99,19 @@ export default function WatchFaceGrid({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!isAuthenticated) {
-      router.push("/auth/signin");
-      return;
-    }
-
     try {
-      await fetch("/api/likes", {
+      const res = await fetch("/api/likes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ watchFaceId }),
       });
+      if (res.ok) {
+        setWatchfaces((prev) =>
+          prev.map((wf) =>
+            wf.id === watchFaceId ? { ...wf, likes: wf.likes + 1 } : wf
+          )
+        );
+      }
     } catch (error) {
       console.error("Error liking:", error);
     }
@@ -126,10 +121,10 @@ export default function WatchFaceGrid({
     return (
       <div className="text-center py-16">
         <Eye className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-        <h3 className="text-xl font-semibold mb-2">暂无作品</h3>
-        <p className="text-muted-foreground">成为第一个上传表盘的创作者吧！</p>
+        <h3 className="text-xl font-semibold mb-2">{t("home.noWorks")}</h3>
+        <p className="text-muted-foreground">{t("home.noWorksDesc")}</p>
         <Link href="/upload">
-          <Button className="mt-4 rounded-full">上传表盘</Button>
+          <Button className="mt-4 rounded-full">{t("home.uploadWatchface")}</Button>
         </Link>
       </div>
     );
@@ -176,7 +171,7 @@ export default function WatchFaceGrid({
                       categoryColors[wf.category] || "bg-gray-100 text-gray-700"
                     }`}
                   >
-                    {categoryNames[wf.category] || wf.category}
+                    {t(`watchfaces.categories.${wf.category}`) || wf.category}
                   </Badge>
                 </div>
 
@@ -205,7 +200,7 @@ export default function WatchFaceGrid({
                         )}
                       </div>
                       <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {wf.author?.name || "匿名"}
+                        {wf.author?.name || t("watchfaceDetail.anonymous")}
                       </span>
                     </div>
 
@@ -230,11 +225,11 @@ export default function WatchFaceGrid({
         {loading && (
           <div className="flex items-center justify-center gap-2">
             <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm text-muted-foreground">加载中...</span>
+            <span className="text-sm text-muted-foreground">{t("home.loading")}</span>
           </div>
         )}
         {!hasMore && watchfaces.length > 0 && (
-          <p className="text-center text-sm text-muted-foreground">已经到底啦 ~</p>
+          <p className="text-center text-sm text-muted-foreground">{t("home.noMore")}</p>
         )}
       </div>
     </div>

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Settings, Activity, ImageIcon, Watch } from "lucide-react";
-import { GarminBindButton } from "@/components/garmin-bind-button";
 import { getTranslations } from "next-intl/server";
 
 // 匿名用户数据
@@ -97,19 +96,14 @@ export default async function ProfilePage() {
             <div className="p-4 border rounded-lg bg-muted/50">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-medium">佳明账号</h3>
+                  <h3 className="font-medium">{t("profile.garminAccount")}</h3>
                   <p className="text-sm text-muted-foreground">
                     {isGarminConnected
                       ? t("profile.garminConnectedDesc")
                       : t("profile.garminNotConnectedDesc")}
                   </p>
                 </div>
-                <GarminBindButton
-                  isConnected={isGarminConnected}
-                  onDisconnect={() => {
-                    window.location.reload();
-                  }}
-                />
+                <Badge variant="outline">{t("profile.notConnected")}</Badge>
               </div>
             </div>
           </CardContent>

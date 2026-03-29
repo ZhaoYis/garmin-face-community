@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { User, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface Author {
   id: string;
@@ -21,9 +21,8 @@ interface AuthorCardProps {
 export default function AuthorCard({
   author,
   currentUserId,
-  isAuthenticated,
 }: AuthorCardProps) {
-  const router = useRouter();
+  const t = useTranslations("watchfaceDetail");
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,11 +30,6 @@ export default function AuthorCard({
   const isSelf = currentUserId === author.id;
 
   const handleFollow = async () => {
-    if (!isAuthenticated) {
-      router.push("/auth/signin");
-      return;
-    }
-
     setIsLoading(true);
     try {
       if (isFollowing) {
@@ -77,7 +71,7 @@ export default function AuthorCard({
           )}
         </div>
         <div className="flex-1">
-          <p className="font-medium">{author.name || "匿名用户"}</p>
+          <p className="font-medium">{author.name || t("anonymous")}</p>
           {author.bio && (
             <p className="text-sm text-muted-foreground line-clamp-1">
               {author.bio}
@@ -93,10 +87,10 @@ export default function AuthorCard({
             {isFollowing ? (
               <>
                 <Users className="w-4 h-4 mr-2" />
-                已关注
+                {t("following")}
               </>
             ) : (
-              "关注"
+              t("follow")
             )}
           </Button>
         )}

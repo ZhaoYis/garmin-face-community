@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Star, User } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface Comment {
   id: string;
@@ -27,9 +27,8 @@ interface CommentSectionProps {
 export default function CommentSection({
   watchFaceId,
   comments: initialComments,
-  isAuthenticated,
 }: CommentSectionProps) {
-  const router = useRouter();
+  const t = useTranslations("watchfaceDetail");
   const [comments, setComments] = useState(initialComments);
   const [content, setContent] = useState("");
   const [rating, setRating] = useState(5);
@@ -37,11 +36,6 @@ export default function CommentSection({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isAuthenticated) {
-      router.push("/auth/signin");
-      return;
-    }
 
     if (!content.trim()) return;
 
@@ -59,16 +53,16 @@ export default function CommentSection({
 
       if (res.ok) {
         const newComment = await res.json();
-        setComments([newComment, ...comments]);
+        setComments([{ ...newComment, user: { id: null, name: t("anonymous"), image: null } }, ...comments]);
         setContent("");
         setRating(5);
       } else {
         const error = await res.json();
-        alert(error.error || "评论失败");
+        alert(error.error || t("commentFailed"));
       }
     } catch (error) {
       console.error("Error posting comment:", error);
-      alert("评论失败");
+      alert(t("commentFailed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -79,7 +73,7 @@ export default function CommentSection({
       {/* Comment Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">评分</label>
+          <label className="block text-sm font-medium mb-2">{t("rating")}</label>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -101,18 +95,17 @@ export default function CommentSection({
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">评论内容</label>
+          <label className="block text-sm font-medium mb-2">{t("commentContent")}</label>
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder={isAuthenticated ? "写下你的评论..." : "请先登录"}
-            disabled={!isAuthenticated}
+            placeholder={t("commentPlaceholder")}
             rows={3}
           />
         </div>
 
-        <Button type="submit" disabled={!isAuthenticated || !content.trim() || isSubmitting}>
-          {isSubmitting ? "提交中..." : "发表评论"}
+        <Button type="submit" disabled={!content.trim() || isSubmitting}>
+          {isSubmitting ? t("submitting") : t("postComment")}
         </Button>
       </form>
 
@@ -120,7 +113,7 @@ export default function CommentSection({
       <div className="space-y-4">
         {comments.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">
-            暂无评论，快来抢沙发吧！
+            {t("noComments")}
           </p>
         ) : (
           comments.map((comment) => (
@@ -143,7 +136,7 @@ export default function CommentSection({
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-medium">
-                      {comment.user?.name || "匿名用户"}
+                      {comment.user?.name || t("anonymous")}
                     </span>
                     {comment.rating && (
                       <div className="flex gap-0.5">
