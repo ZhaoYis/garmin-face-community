@@ -77,7 +77,7 @@ export default async function HomePage() {
           <Link href="/upload">
             <Button variant="outline" size="lg">
               <Upload className="w-5 h-5 mr-2" />
-              上传表盘
+              {t("home.uploadWatchface")}
             </Button>
           </Link>
         </div>
@@ -124,10 +124,10 @@ export default async function HomePage() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <Eye className="w-5 h-5" />
-            用户作品展示
+            {t("home.userWorks")}
           </h2>
           <Link href="/watchfaces" className="text-sm text-primary hover:underline">
-            查看全部 →
+            {t("home.viewAll")} →
           </Link>
         </div>
 
@@ -141,7 +141,7 @@ export default async function HomePage() {
       {/* Footer */}
       <footer className="border-t mt-16 py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>&copy; 2026 Garmin Face Community. All rights reserved.</p>
+          <p>&copy; {t("home.copyright")}</p>
         </div>
       </footer>
     </div>

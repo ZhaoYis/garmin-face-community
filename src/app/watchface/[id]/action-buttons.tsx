@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Heart, Share2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Download, Heart, Share2, Bookmark } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ActionButtonsProps {
   watchFaceId: string;
@@ -22,20 +22,14 @@ export default function ActionButtons({
   likes: initialLikes,
   downloads,
   fileUrl,
-  isAuthenticated,
 }: ActionButtonsProps) {
-  const router = useRouter();
+  const t = useTranslations("watchfaceDetail");
   const [liked, setLiked] = useState(initialLiked);
   const [favorited, setFavorited] = useState(initialFavorited);
   const [likes, setLikes] = useState(initialLikes);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLike = async () => {
-    if (!isAuthenticated) {
-      router.push("/auth/signin");
-      return;
-    }
-
     setIsLoading(true);
     try {
       if (liked) {
@@ -65,11 +59,6 @@ export default function ActionButtons({
   };
 
   const handleFavorite = async () => {
-    if (!isAuthenticated) {
-      router.push("/auth/signin");
-      return;
-    }
-
     setIsLoading(true);
     try {
       if (favorited) {
@@ -101,7 +90,7 @@ export default function ActionButtons({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "分享表盘",
+          title: t("shareWatchface"),
           url,
         });
       } catch {
@@ -109,7 +98,7 @@ export default function ActionButtons({
       }
     } else {
       await navigator.clipboard.writeText(url);
-      alert("链接已复制到剪贴板");
+      alert(t("linkCopied"));
     }
   };
 
@@ -119,7 +108,7 @@ export default function ActionButtons({
         <Button className="flex-1">
           <a href={fileUrl} download className="flex items-center">
             <Download className="w-4 h-4 mr-2" />
-            下载 ({downloads})
+            {t("download")} ({downloads})
           </a>
         </Button>
         <Button
@@ -137,10 +126,10 @@ export default function ActionButtons({
           onClick={handleFavorite}
           disabled={isLoading}
         >
-          <Heart
-            className={`w-4 h-4 mr-2 ${favorited ? "fill-current text-red-500" : ""}`}
+          <Bookmark
+            className={`w-4 h-4 mr-2 ${favorited ? "fill-current" : ""}`}
           />
-          {favorited ? "已收藏" : "收藏"}
+          {favorited ? t("favorited") : t("favorite")}
         </Button>
       </div>
       <Button variant="ghost" size="icon" onClick={handleShare}>

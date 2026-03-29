@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import { db } from "@/lib/db";
-import { watchFaces, users, comments, likes, favorites } from "@/lib/db/schema";
+import { watchFaces, users, comments } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import CommentSection from "./comment-section";
 import ActionButtons from "./action-buttons";
 import AuthorCard from "./author-card";
@@ -65,6 +66,7 @@ async function getUserActions(watchFaceId: string, userId: string | undefined) {
 
 export default async function WatchFaceDetailPage({ params }: Props) {
   const { id } = await params;
+  const t = await getTranslations();
   const [watchface, commentList] = await Promise.all([
     getWatchFace(id),
     getComments(id),
@@ -78,39 +80,20 @@ export default async function WatchFaceDetailPage({ params }: Props) {
 
   // 分类显示名称
   const categoryNames: Record<string, string> = {
-    analog: "模拟",
-    digital: "数字",
-    hybrid: "混合",
-    fitness: "运动",
+    analog: t("watchfaces.categories.analog"),
+    digital: t("watchfaces.categories.digital"),
+    hybrid: t("watchfaces.categories.hybrid"),
+    fitness: t("watchfaces.categories.fitness"),
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold">
-              Garmin 表盘社区
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link href="/upload">
-                <Button>上传表盘</Button>
-              </Link>
-              <Link href="/profile">
-                <Button variant="outline">个人中心</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
         <Link href="/watchfaces">
           <Button variant="ghost" className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            返回
+            {t("common.back")}
           </Button>
         </Link>
 
@@ -126,7 +109,7 @@ export default async function WatchFaceDetailPage({ params }: Props) {
                     className="w-full h-full object-cover rounded-t-lg"
                   />
                 ) : (
-                  <span className="text-muted-foreground">表盘预览</span>
+                  <span className="text-muted-foreground">{t("watchfaceDetail.preview")}</span>
                 )}
               </div>
               <CardContent className="p-4">
@@ -157,28 +140,28 @@ export default async function WatchFaceDetailPage({ params }: Props) {
             </div>
 
             <p className="text-muted-foreground mb-6">
-              {watchface.description || "暂无描述"}
+              {watchface.description || t("watchfaceDetail.noDescription")}
             </p>
 
             <div className="space-y-4 mb-6">
               <div className="flex items-center justify-between py-2 border-b">
-                <span className="text-muted-foreground">下载量</span>
+                <span className="text-muted-foreground">{t("watchfaceDetail.downloads")}</span>
                 <span className="font-medium">{watchface.downloads}</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b">
-                <span className="text-muted-foreground">点赞数</span>
+                <span className="text-muted-foreground">{t("watchfaceDetail.likes")}</span>
                 <span className="font-medium">{watchface.likes}</span>
               </div>
               {watchface.fileSize && (
                 <div className="flex items-center justify-between py-2 border-b">
-                  <span className="text-muted-foreground">文件大小</span>
+                  <span className="text-muted-foreground">{t("watchfaceDetail.fileSize")}</span>
                   <span className="font-medium">{(watchface.fileSize / 1024 / 1024).toFixed(2)} MB</span>
                 </div>
               )}
               <div className="flex items-center justify-between py-2 border-b">
-                <span className="text-muted-foreground">发布时间</span>
+                <span className="text-muted-foreground">{t("watchfaceDetail.publishDate")}</span>
                 <span className="font-medium">
-                  {watchface.createdAt ? new Date(watchface.createdAt).toLocaleDateString("zh-CN") : "-"}
+                  {watchface.createdAt ? new Date(watchface.createdAt).toLocaleDateString() : "-"}
                 </span>
               </div>
             </div>
@@ -200,7 +183,7 @@ export default async function WatchFaceDetailPage({ params }: Props) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MessageCircle className="w-5 h-5" />
-                评论 ({commentList.length})
+                {t("watchfaceDetail.comments")} ({commentList.length})
               </CardTitle>
             </CardHeader>
             <CardContent>

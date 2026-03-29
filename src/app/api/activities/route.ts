@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { activities } from "@/lib/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, and } from "drizzle-orm";
 
 const MOCK_USER_ID = "anonymous";
 
@@ -14,24 +14,16 @@ export async function GET(request: NextRequest) {
     const activityType = searchParams.get("type");
 
     // 构建查询条件
-    let query = db.query.activities.findMany({
-      where: eq(activities.userId, MOCK_USER_ID),
+    const whereCondition = activityType
+      ? and(eq(activities.userId, MOCK_USER_ID), eq(activities.activityType, activityType))
+      : eq(activities.userId, MOCK_USER_ID);
+
+    const data = await db.query.activities.findMany({
+      where: whereCondition,
       limit,
       offset: (page - 1) * limit,
       orderBy: [desc(activities.startTime)],
     });
-
-    // 如果有类型筛选
-    if (activityType) {
-      query = db.query.activities.findMany({
-        where: eq(activities.userId, MOCK_USER_ID),
-        limit,
-        offset: (page - 1) * limit,
-        orderBy: [desc(activities.startTime)],
-      });
-    }
-
-    const data = await query;
 
     return NextResponse.json({
       activities: data,
